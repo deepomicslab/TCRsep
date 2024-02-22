@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+include tcrsep/gene_segment/*.fasta
+include tcrsep/models/generation_model/human_T_beta/*
+include tcrsep/models/embedding_model/CDR3vec/*
+include tcrsep/models/embedding_model/TCR2vec/*
