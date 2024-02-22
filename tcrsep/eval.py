@@ -14,17 +14,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-def load_model(gen_path,sel_path,alpha=0.1,dropout=0.1,LN=True):
+def load_model(gen_path,sel_path,alpha=0.1,dropout=0.1,simulation=False):
     if gen_path =='None':
         package_path = inspect.getfile(tcrsep)
-        gen_path = package_path.split('__init__.py')[0] + 'models/generation_model/human_T_beta'
+        gen_path = package_path.split('__init__.py')[0] + 'models/generation_model/CMV_whole'
     gen_model = Generation_model(gen_path)
 
     if sel_path =='None':
         package_path = inspect.getfile(tcrsep)
         sel_path = package_path.split('__init__.py')[0] + 'models/selection_model/CMV_whole.pth'
 
-    sel_model = TCRsep(dropout=dropout,alpha=alpha,load_path = sel_path,gen_model_path=gen_path,LN=LN)
+    sel_model = TCRsep(dropout=dropout,alpha=alpha,load_path = sel_path,gen_model_path=gen_path,simulation=simulation)
     return gen_model,sel_model
 
 if __name__ == '__main__':
@@ -37,7 +37,8 @@ if __name__ == '__main__':
     parser.add_argument('--sel_model_path',type=str,default='None')
     parser.add_argument('--gen_model_path',type=str,default='None')
     parser.add_argument('--save_dir',type=str,default='None')
-    parser.add_argument('--simulation',type=str,default='False')
+    parser.add_argument('--simulation',default=False,action='store_true')
+    # parser.add_argument('--foo', default=False, action='store_true')
     args = parser.parse_args()
 
     if args.save_dir != 'None':
@@ -71,12 +72,8 @@ if __name__ == '__main__':
     if args.save_dir != 'None':
         f = gzip.GzipFile(save_emb_path, "w") 
         np.save(file=f, arr=emb)
-    
-    if args.simulation == 'True':
-        gen_model,sel_model = load_model(args.gen_model_path,args.sel_model_path,alpha=args.alpha,dropout=args.dropout,LN=False)
-    else :
-        gen_model,sel_model = load_model(args.gen_model_path,args.sel_model_path,alpha=args.alpha,dropout=args.dropout)
-
+        
+    gen_model,sel_model = load_model(args.gen_model_path,args.sel_model_path,alpha=args.alpha,dropout=args.dropout,simulation=args.simulation)        
     sel_factors= sel_model.predict_weights(emb)
 
     if args.data_path != 'None':

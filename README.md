@@ -7,55 +7,61 @@ TCRsep is a python software for the inference of the selection factor for immune
 ## Installation
 TCRsep is available on PyPI and can be installed via pip: <br />
  ```pip install tcrsep``` <br />
-TCRsep depends on multiple packages. Make sure that the following dependencies are installed correctly:
-[torch](https://pytorch.org/get-started/previous-versions/#v180) >= 1.5.0 (Tested on torch 1.8.0+cuda11.1)<br />
+TCRsep depends on multiple packages. Make sure that the following dependencies are installed correctly: <br /> [torch](https://pytorch.org/get-started/previous-versions/#v180) >= 1.5.0 (Tested on torch 1.8.0+cuda11.1)<br />
 [olga](https://github.com/statbiophys/OLGA) (For modeling the generation of TCR) <br />
 [tcr2vec](https://github.com/jiangdada1221/TCR2vec) (For embedding TCR) 
 
 ## Usage instructions
-__Notes:__ the default column names specifying the CDR3β amino acid sequences, V genes, and J genes are __CDR3.beta__, __V__ and __J__, respectively.  
-Define and train TCRpeg model:
+__Notes:__ the default column names specifying the CDR3β amino acid sequences, V genes, and J genes are __CDR3.beta__, __V__ and __J__, respectively.  <br />
+
+Train a TCRsep model. 
+```
+python3 train.py --fefef #xxxxxxx
+                 --feefee #xxxxxxxxxxxxxxxxxxxxx
+```
+
 ```python
-from tcrpeg.TCRpeg import TCRpeg
-model = TCRpeg(embedding_path='tcrpeg/data/embedding_32.txt',load_data=True, path_train=tcrs) 
-#'embedding_32.txt' records the numerical embeddings for each AA; We provide it under the 'tcrpeg/data/' folder.
+from tcrsep.estimator import TCRsep
+sel_model = TCRsep() 
+sel_model.train(iters=100,seqs_post=clonetypes)
+#'embedding_32.txt' records the numerical embeddings for each AA; We provide it under the 'tcrsep/data/' folder.
 #'tcrs' is the TCR repertoire ([tcr1,tcr2,....])
-model.create_model() #initialize the TCRpeg model
-model.train_tcrpeg(epochs=20, batch_size= 32, lr=1e-3) 
-#defining and training of TCRpeg_vj can be found in tutorial.ipynb
+model.create_model() #initialize the TCRsep model
+model.train_tcrsep(epochs=20, batch_size= 32, lr=1e-3) 
+#defining and training of TCRsep_vj can be found in tutorial.ipynb
 ```
 Load the default models
 ```pyton
-model = TCRpeg(embedding_path='tcrpeg/data/embedding_32.txt',load_data=False)
-model.create_model(load=True,path='tcrpeg/models/tcrpeg.pth')
-#TCRpeg_vj model
-model_vj = TCRpeg(embedding_path='tcrpeg/data/embedding_32.txt',load_data=False,vj=True)
-model_vj.create_model(vj=True,load=True,path='tcrpeg/models/tcrpeg_vj.pth')
+model = TCRsep(embedding_path='tcrsep/data/embedding_32.txt',load_data=False)
+model.create_model(load=True,path='tcrsep/models/tcrsep.pth')
+#TCRsep_vj model
+model_vj = TCRsep(embedding_path='tcrsep/data/embedding_32.txt',load_data=False,vj=True)
+model_vj.create_model(vj=True,load=True,path='tcrsep/models/tcrsep_vj.pth')
 ```
-Use the pretrained TCRpeg model for downstream applications:
+Use the pretrained TCRsep model for downstream applications:
 ```python
-log_probs = model.sampling_tcrpeg_batch(tcrs)   #probability inference
-new_tcrs = model.generate_tcrpeg(num_to_gen=1000, batch_size= 100)    #generation
+log_probs = model.sampling_tcrsep_batch(tcrs)   #probability inference
+new_tcrs = model.generate_tcrsep(num_to_gen=1000, batch_size= 100)    #generation
 embs = model.get_embedding(tcrs)    #embeddings for tcrs
 ```
 #### Updates
 The downstream applications can be also applied to CDR3+V+J data
 ```python
-new_clonetypes = model.generate_tcrpeg_vj(num_to_gen=1000, batch_size= 100) #generation
-log_probs_clonetypes = model.sampling_tcrpeg_batch(clone_types) # get the probs of CDR3_V_J
+new_clonetypes = model.generate_tcrsep_vj(num_to_gen=1000, batch_size= 100) #generation
+log_probs_clonetypes = model.sampling_tcrsep_batch(clone_types) # get the probs of CDR3_V_J
 #size of clone_types: 3xlength ([[cdr1,cdr2,cdr3...],[v1,v2,v3..],[j1,j2,j3...]])
 ```
 
- We provide a tutorial jupyter notebook named [tutorial.ipynb](https://github.com/jiangdada1221/TCRpeg/blob/main/tutorial.ipynb). It contains most of the functional usages of TCRpeg which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation. <br />
+ We provide a tutorial jupyter notebook named [tutorial.ipynb](https://github.com/jiangdada1221/TCRsep/blob/main/tutorial.ipynb). It contains most of the functional usages of TCRsep which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation. <br />
 
  ## Command line usages
 
- We have provided the scripts for the experiments in the paper via the folder [tcrpeg/scripts](https://github.com/jiangdada1221/TCRpeg/tree/main/tcrpeg/scripts). <br />
+ We have provided the scripts for the experiments in the paper via the folder [tcrsep/scripts](https://github.com/jiangdada1221/TCRsep/tree/main/tcrsep/scripts). <br />
 
  ```
 python train.py --path_train ../data/TCRs_train.csv --epoch 20 --learning_rate 0.0001 --store_path ../results/model.pth 
 ```
-To train a TCRpeg (with vj) model, the data file needs to have the columns named 'seq', 'v', 'j'. Insert 'python train.py --h' for more details.<br />
+To train a TCRsep (with vj) model, the data file needs to have the columns named 'seq', 'v', 'j'. Insert 'python train.py --h' for more details.<br />
 ```
 python evaluate.py --test_path ../data/pdf_test.csv --model_path ../results/model.pth
 ```
@@ -63,21 +69,21 @@ To compute the Pearson correlation coefficient of the probability inference task
 ```
 python generate.py --model_path ../results/model.pth --n 10000 --store_path ../results/gen_seq.txt
 ```
-Use the pretrained TCRpeg to generate new sequences. Type 'python generate.py --h' for more details <br />
+Use the pretrained TCRsep to generate new sequences. Type 'python generate.py --h' for more details <br />
 ```
 python classify.py --path_train ../data/train.csv --path_test ../data/test.csv --epoch 20 --learning_rate 0.0001
 ```
-Use TCRpeg-c for classification task. The files should have two columns: 'seq' and 'label'. Type 'python classify.py --h' for more details. <br /> 
+Use TCRsep-c for classification task. The files should have two columns: 'seq' and 'label'. Type 'python classify.py --h' for more details. <br /> 
 Note that the parameters unspecified will use the default ones (e.g. batch size) <br /><br />
 The python files and their usages are shown below: <br />
 
 | Module name                                    | Usage                                              |    
 |------------------------------------------------|----------------------------------------------------|
-| TCRpeg.py                                      | Contain most functions of TCRpeg                   |
+| TCRsep.py                                      | Contain most functions of TCRsep                   |
 | evaluate.py                                    | Evaluate the performance of probability inference  |
 | word2vec.py                                    | word2vec model for obtaining embeddings of AAs     |
-| model.py                                       | Deep learning models of TCRpeg,TCRpeg-c,TCRpeg_vj  |
-| classification.py                              | Apply TCRpeg-c for classification tasks            |
+| model.py                                       | Deep learning models of TCRsep,TCRsep-c,TCRsep_vj  |
+| classification.py                              | Apply TCRsep-c for classification tasks            |
 | utils.py                                       | N/A (contains util functions)                      |
 | process_data.py                                | Construct the universal TCR pool                   |
 
@@ -90,7 +96,7 @@ Note: For instant query, feel free to send me an email since I check email often
 
 ## License
 
-Free use of TCRpeg is granted under the terms of the GNU General Public License version 3 (GPLv3).
+Free use of TCRsep is granted under the terms of the GNU General Public License version 3 (GPLv3).
 
 ## Citation 
 ```

@@ -14,7 +14,7 @@ class Generation_model:
     def __init__(self,model_folder=None,processes=None,change_sep=False):
         if model_folder is None:
             package_path = inspect.getfile(tcrsep)
-            model_folder = package_path.split('__init__.py')[0] + 'models/generation_model/human_T_beta'
+            model_folder = package_path.split('__init__.py')[0] + 'models/generation_model/CMV_whole'
         self.model_folder = model_folder
         params_file_name = f'{model_folder}/model_params.txt'
         marginals_file_name = f'{model_folder}/model_marginals.txt'

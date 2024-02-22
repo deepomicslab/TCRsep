@@ -6,6 +6,7 @@ from tcrsep.dataset import Loader
 from tcrsep.utils import *
 from tcrsep.dataset import Loader
 from tcrsep.pgen import Generation_model
+from tcrsep.rejection_sampler import sampler
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -18,70 +19,21 @@ def weights_init(m):
     if isinstance(m, nn.Linear):
         torch.nn.init.xavier_uniform(m.weight.data)
 
-class NN(nn.Module):
-    def __init__(self,in_dims,hid_dim,out_dim=1,dropout=0.1,alpha=.1,LN=True):
-        super().__init__()
-        self.in_dims = in_dims
-        if LN:
-            self.projects = nn.ModuleList([nn.Sequential(
-                nn.Linear(in_dims[i], hid_dim), 
-                nn.LayerNorm(hid_dim),
-                nn.ReLU(),
-                nn.Linear(hid_dim, hid_dim),
-                nn.LayerNorm(hid_dim),
-                nn.ReLU()
-            ) for i in range(len(in_dims))] )
-            self.project3 = nn.Sequential(
-                nn.Linear(hid_dim * len(in_dims), len(in_dims) * hid_dim // 2), 
-                nn.LayerNorm(len(in_dims) * hid_dim // 2),
-                nn.Dropout(dropout),
-                nn.ReLU(),                
-                nn.Linear(len(in_dims) * hid_dim // 2, hid_dim ),                
-                nn.LayerNorm(hid_dim),
-                nn.Dropout(dropout),
-                nn.ReLU(),                
-                nn.Linear(hid_dim, out_dim),nn.ReLU())
-        else :
-            self.projects = nn.ModuleList([nn.Sequential(
-                nn.Linear(in_dims[i], hid_dim),                 
-                nn.ReLU(),
-                nn.Linear(hid_dim, hid_dim),
-                nn.ReLU()
-            ) for i in range(len(in_dims))] )
-            self.project3 = nn.Sequential(
-                nn.Linear(hid_dim * len(in_dims), len(in_dims) * hid_dim // 2), 
-                nn.Dropout(dropout),
-                nn.ReLU(),                
-                nn.Linear(len(in_dims) * hid_dim // 2, hid_dim ), 
-                nn.Dropout(dropout),
-                nn.ReLU(),                
-                nn.Linear(hid_dim, out_dim),nn.ReLU())
-
-    def forward(self, x):  
-        xs = []
-        idx = 0
-        for i in range(len(self.in_dims)):
-            xs.append(x[:,idx:idx+self.in_dims[i]])
-            idx += self.in_dims[i]
-        xs = [self.projects[i](xs[i]) for i in range(len(xs))]
-        x = torch.cat(xs,-1)            
-        x1  =self.project3(x)                   
-        return x1,1 
-
 class TCRsep:
     def __init__(self,hidden_size=128,out_dim=1,dropout=0.0,device='cuda:0',
-                 lr=1e-4,load_path=None,sizes=[128,128],alpha=0.1,LN=True,gen_model_path=None):         
-        self.model = NN(sizes,hidden_size,out_dim,dropout,LN=LN).to(device)
+                 lr=1e-4,load_path=None,sizes=[128,128],alpha=0.1,simulation=False,gen_model_path=None,emb_model_path=None):         
+        self.model = NN(sizes,hidden_size,out_dim,dropout,simulation=simulation).to(device)
         if load_path is not None:
             self.model.load_state_dict(torch.load(load_path))
             self.model.eval()
             logger.info(f'Load the trained model from {load_path}')
-        self.sizes,self.hidden_size,self.out_dim,self.dropout,self.LN = sizes,hidden_size,out_dim,dropout,LN
+        self.sizes,self.hidden_size,self.out_dim,self.dropout = sizes,hidden_size,out_dim,dropout
         self.lr = lr        
         self.device= device               
         
         self.alpha = alpha            
         self.default_gen_model = Generation_model(gen_model_path)    
+        self.emb_model_path = emb_model_path
 
     def check_and_reInitialize(self,ws):
         indicator = False
@@ -153,7 +105,7 @@ class TCRsep:
             torch.save(self.model.state_dict(), save_checkpoint)                    
             logger.info(f'At Iteration {i} save the model to {save_checkpoint}')
 
-    def train(self,iters,seqs_post,seqs_pre=None,batch_size=1000,save_checkpoint=None,valid_ratio=0.0,emb_model_path=None,patience=5):
+    def train(self,iters,seqs_post,seqs_pre=None,batch_size=1000,save_checkpoint=None,valid_ratio=0.0,patience=5):
         #assert emb_model_path is not None, logger.info('You need to specify the directory of embedding model')
         if seqs_pre is None:
             n = len(seqs_post)            
@@ -166,7 +118,7 @@ class TCRsep:
             if type(seqs_pre_full[0]) != str:
                 seqs_pre_full = [c.decode('utf-8') for c in seqs_pre_full]
             seqs_for_emb = [[s[0] for s in seqs_pre],seqs_pre_full]
-            pre_emb = get_embedded_data(seqs_for_emb,emb_model_path)
+            pre_emb = get_embedded_data(seqs_for_emb,self.emb_model_path)
         else :
             pre_emb = seqs_pre 
 
@@ -175,7 +127,7 @@ class TCRsep:
             if type(seqs_post_full[0]) != str:
                 seqs_post_full = [c.decode('utf-8') for c in seqs_post_full]
             seqs_post = [[s[0] for s in seqs_post],seqs_post_full]
-            post_emb = get_embedded_data(seqs_post,emb_model_path)
+            post_emb = get_embedded_data(seqs_post,self.emb_model_path)
         else:
             post_emb = seqs_post
         loader_train = Loader(pre_emb,post_emb,batch_size)
@@ -191,7 +143,7 @@ class TCRsep:
         
         return seqs_pre,pre_emb,post_emb
                 
-    def predict_weights(self,samples,batch_size=128,emb_model_path=None):
+    def predict_weights(self,samples,batch_size=128):
         '''
         @samples: embedding of input TCRs; size of L x d
         '''
@@ -202,14 +154,35 @@ class TCRsep:
             if len(samples[i*batch_size:(i+1)*batch_size]) == 0:
                 continue
             samples_sub = samples[i * batch_size:(i+1)*batch_size]
-            if type(samples_sub[0]) == str:
-                samples_sub = get_embedded_data(samples_sub,emb_model_path)
+            if type(samples_sub[0]) == str or type(samples_sub[0]) == np.str or type(samples_sub[0]) == np.str_:
+                samples_sub = get_embedded_data(samples_sub,self.emb_model_path)
             weights_pre_tmp,_ = self.model(torch.FloatTensor(samples_sub).to(self.device))  
             weights_pre.append(weights_pre_tmp.detach().cpu().numpy()[:,0])
         ws_pre = np.concatenate(weights_pre)          
         ws_pre[ws_pre > 1000] = 1000 #max  
         ws_pre[ws_pre == 0] = np.random.uniform(low=1e-5,high=1e-2,size=np.sum(ws_pre==0))
         return ws_pre
+    
+    def sample(self,n,prob=False):
+        syn_samples,sel_factors,embeddings = sampler(self.default_gen_model,self,n)
+        re_dic = {'samples':syn_samples,'sel_factors':sel_factors,'embeddings':embeddings}
+        if not prob:
+            return re_dic
+        else:
+            pgen = self.default_gen_model.p_gen(syn_samples)
+            pposts = pgen * sel_factors
+            re_dic['pposts'] = pposts
+            re_dic['pgens'] = pgen
+            return re_dic
+        
+    def get_prob(self,samples):
+        if len(samples) == 2 and len(samples[0][0]) == 3:
+            sel_factors = self.predict_weights(samples[1])
+        else :
+            sel_factors = self.predict_weights(samples)
+        pgen = self.default_gen_model.p_gen(samples)
+        pposts = pgen * sel_factors
+        return pgen,pposts
     
 #simulation estimators
 class V_select:
@@ -389,3 +362,54 @@ class Motif_select:
             weights.append(0 if seg_idx == -1 else self.motif_sel[seg_idx])
         
         return weights        
+    
+class NN(nn.Module):
+    def __init__(self,in_dims,hid_dim,out_dim=1,dropout=0.1,simulation=True):
+        super().__init__()
+        self.in_dims = in_dims
+        LN = not simulation
+        if LN:
+            self.projects = nn.ModuleList([nn.Sequential(
+                nn.Linear(in_dims[i], hid_dim), 
+                nn.LayerNorm(hid_dim),
+                nn.ReLU(),
+                nn.Linear(hid_dim, hid_dim),
+                nn.LayerNorm(hid_dim),
+                nn.ReLU()
+            ) for i in range(len(in_dims))] )
+            self.project3 = nn.Sequential(
+                nn.Linear(hid_dim * len(in_dims), len(in_dims) * hid_dim // 2), 
+                nn.LayerNorm(len(in_dims) * hid_dim // 2),
+                nn.Dropout(dropout),
+                nn.ReLU(),                
+                nn.Linear(len(in_dims) * hid_dim // 2, hid_dim ),                
+                nn.LayerNorm(hid_dim),
+                nn.Dropout(dropout),
+                nn.ReLU(),                
+                nn.Linear(hid_dim, out_dim),nn.ReLU())
+        else :
+            self.projects = nn.ModuleList([nn.Sequential(
+                nn.Linear(in_dims[i], hid_dim),                 
+                nn.ReLU(),
+                nn.Linear(hid_dim, hid_dim),
+                nn.ReLU()
+            ) for i in range(len(in_dims))] )
+            self.project3 = nn.Sequential(
+                nn.Linear(hid_dim * len(in_dims), len(in_dims) * hid_dim // 2), 
+                nn.Dropout(dropout),
+                nn.ReLU(),                
+                nn.Linear(len(in_dims) * hid_dim // 2, hid_dim ), 
+                nn.Dropout(dropout),
+                nn.ReLU(),                
+                nn.Linear(hid_dim, out_dim),nn.ReLU())
+
+    def forward(self, x):  
+        xs = []
+        idx = 0
+        for i in range(len(self.in_dims)):
+            xs.append(x[:,idx:idx+self.in_dims[i]])
+            idx += self.in_dims[i]
+        xs = [self.projects[i](xs[i]) for i in range(len(xs))]
+        x = torch.cat(xs,-1)            
+        x1  =self.project3(x)                   
+        return x1,1     

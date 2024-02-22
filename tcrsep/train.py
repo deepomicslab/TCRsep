@@ -26,8 +26,8 @@ if __name__ == '__main__':
     parser.add_argument('--pre_emb_path',type=str,default='None')
     parser.add_argument('--post_emb_path',type=str,default='None')
     parser.add_argument('--gen_model_path',type=str,default='None')
-    parser.add_argument('--save_dir',type=str,default='None')
-    parser.add_argument('--simulation',type=str,default='False')
+    parser.add_argument('--save_dir',type=str,default='None')    
+    parser.add_argument('--simulation',default=False,action='store_true')
     args = parser.parse_args()
 
     if args.save_dir != 'None':
@@ -62,13 +62,11 @@ if __name__ == '__main__':
         post_seqs = pd.read_csv(args.post_data_path,sep=sep)
         post_seqs = post_seqs[['CDR3.beta','V','J']].values
 
-    if args.simulation == 'False':
-        sel_model = TCRsep(dropout=args.dropout,alpha=args.alpha ,gen_model_path=args.gen_model_path)
-    else :
-        sel_model = TCRsep(dropout=args.dropout,alpha=args.alpha ,gen_model_path=args.gen_model_path,LN=False)
-    
     emb_model_path = None if args.emb_model_path == 'None' else args.emb_model_path
-    seqs_pre,pre_emb,post_emb = sel_model.train(args.iters,post_seqs,gen_seqs,args.batchsize,save_model_path,args.val_ratio,emb_model_path)
+    sel_model = TCRsep(dropout=args.dropout,alpha=args.alpha ,gen_model_path=args.gen_model_path,simulation=args.simulation,emb_model_path=emb_model_path)
+    
+    
+    seqs_pre,pre_emb,post_emb = sel_model.train(args.iters,post_seqs,gen_seqs,args.batchsize,save_model_path,args.val_ratio)
 
     if save_pre_emb_path is not None:
         f = gzip.GzipFile(save_pre_emb_path, "w") 
