@@ -6,7 +6,6 @@ from tcrsep.pgen import Generation_model
 import pandas as pd 
 import numpy as np
 from tcrsep.estimator import *
-import argparse
 from tcrsep.utils import cdr2full
 
 def sampler(gen_model,estimator,N,c=10,multiple=10,tcrsep=True,emb_model_path=None):

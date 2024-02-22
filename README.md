@@ -1,25 +1,16 @@
 ## TCRsep: T-cell receptor selection estimation procedure
-TCRsep is a python software for the inference of the selection factor for immune receptor repertoires. It takes a productive TCR repertoire and pre-selection repertoire (optional) as inputs for model training. After that, it outputs the selection factors for any given TCR clonetypes (defined in the "CDR3-V-J" format). 
+TCRsep is a python software for the inference of the selection factor for immune receptor repertoires. It takes a productive TCR repertoire and pre-selection repertoire (optional) as inputs for model training. After that, it outputs the selection factors for any given TCR clonetypes (defined in the __CDR3-V-J__ format). It also outputs their post-selection probabilities that can be further utilized to analyze the receptor sharing pattern and identify indicative disease-associated receptors. 
  <br />
 
 <img src="https://github.com/jiangdada1221/TCRsep/blob/main/figs/workflow_github.png" width="800"> <br />
 
 ## Installation
-TCRpeg is a python software implemented based on the deeplearning library - Pytorch. It is available on PyPI and can be downloaded and installed via pip: <br />
- ```pip install tcrpeg``` <br />
-(__recommended__) TCRpeg can be also installed by __cloning__ the Github repository and using the pip : <br />
-```git clone https://github.com/jiangdada1221/TCRpeg.git``` <br />
-```cd TCRpeg``` <br />
- ```pip install .``` <br />
-The required software dependencies are listed below:
+TCRsep is available on PyPI and can be installed via pip: <br />
+ ```pip install tcrsep``` <br />
+TCRsep depends on multiple packages. Make sure that the following dependencies are installed correctly:
  ```
-Numpy
-matplotlib
-tqdm
-pandas
-scikit-learn
-scipy
-torch >= 1.1.0
+torch >= 1.5.0 (Tested on torch 1.8.0+cuda11.1)
+[olga](https://github.com/statbiophys/OLGA)
  ```
 
 ## Data
