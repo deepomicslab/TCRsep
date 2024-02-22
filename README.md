@@ -10,12 +10,8 @@ TCRsep is available on PyPI and can be installed via pip: <br />
 TCRsep depends on multiple packages. Make sure that the following dependencies are installed correctly:
 
 [torch](https://pytorch.org/get-started/previous-versions/#v180) >= 1.5.0 (Tested on torch 1.8.0+cuda11.1)<br />
-[olga](https://github.com/statbiophys/OLGA)
-
-
-## Data
-
- All the data used in the paper is publicly available, so we suggest readers refer to the original papers for more details. We also upload the processed data which can be downloaded via [this link](https://drive.google.com/file/d/1rqgn6G2js85QS6K7mvMwOEepm4ARi54H/view?usp=sharing)
+[olga](https://github.com/statbiophys/OLGA) (For modeling the generation of TCR) <br />
+[tcr2vec](https://github.com/jiangdada1221/TCR2vec) (For embedding TCR) 
 
 ## Usage instructions
 

@@ -10,7 +10,6 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA as PCA
 import scipy.integrate as integrate
-from scipy.special import comb
 import scipy.special as sc
 from scipy.stats import betabinom as BB
 from scipy.optimize import minimize
