@@ -20,7 +20,7 @@ def weights_init(m):
         torch.nn.init.xavier_uniform(m.weight.data)
 
 class TCRsep:
-    def __init__(self,hidden_size=128,out_dim=1,dropout=0.0,device='cuda:0',
+    def __init__(self,hidden_size=128,out_dim=1,dropout=0.1,device='cuda:0',
                  lr=1e-4,load_path=None,sizes=[128,128],alpha=0.1,simulation=False,gen_model_path=None,emb_model_path=None):         
         self.model = NN(sizes,hidden_size,out_dim,dropout,simulation=simulation).to(device)
         if load_path is not None:

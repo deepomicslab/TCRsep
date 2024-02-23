@@ -31,14 +31,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='')    
     parser.add_argument('--emb_model_path',type=str,default='None')
     parser.add_argument('--alpha',type=float,default=0.1)
-    parser.add_argument('--dropout',type=float,default=0.1)    
     parser.add_argument('--data_path',type=str,default='None')
     parser.add_argument('--data_emb_path',type=str,default='None')
     parser.add_argument('--sel_model_path',type=str,default='None')
     parser.add_argument('--gen_model_path',type=str,default='None')
     parser.add_argument('--save_dir',type=str,default='None')
-    parser.add_argument('--simulation',default=False,action='store_true')
-    # parser.add_argument('--foo', default=False, action='store_true')
+    parser.add_argument('--simulation',default=False,action='store_true')    
     args = parser.parse_args()
 
     if args.save_dir != 'None':
@@ -73,7 +71,7 @@ if __name__ == '__main__':
         f = gzip.GzipFile(save_emb_path, "w") 
         np.save(file=f, arr=emb)
         
-    gen_model,sel_model = load_model(args.gen_model_path,args.sel_model_path,alpha=args.alpha,dropout=args.dropout,simulation=args.simulation)        
+    gen_model,sel_model = load_model(args.gen_model_path,args.sel_model_path,alpha=args.alpha,simulation=args.simulation)        
     sel_factors= sel_model.predict_weights(emb)
 
     if args.data_path != 'None':
