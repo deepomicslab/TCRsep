@@ -72,15 +72,15 @@ pvalues = DATCR_predictor.pvalue('data/query_data_evaled.csv')
 
 For other customized usages, we provide the following module descriptions. Users can refer to the docstrings included in the script files for more details.
 
-| Module name                                    | Usage                                              |    
+| Script name                                    | Usage                                              |    
 |------------------------------------------------|----------------------------------------------------|
-| estimator.py                                   | The TCRsep module                                  |
-| train.py                                       | Train TCRsep by command line                       |
-| eval.py                                        | Inference of sel_factors and probs by command line |
-| pgen.py                                        | The generation module that relies on the OLGA package|
+| estimator.py                              | The TCRsep module                                  |
+| train.py                                  | Train TCRsep by command line                       |
+| eval.py                                   | Inference of sel_factors and probs by command line |
+| pgen.py                                   | The generation module that relies on the OLGA package|
 | rejection_sampler.py                      | Sampling module that enable to draw samples from P_post      |
-| sharing_analysis.py                            | Modules used for sharing analysis                      |
-| utils.py                                       | N/A (contains utility functions)                  |
+| sharing_analysis.py                       | Modules used for sharing analysis                      |
+| utils.py                                  | N/A (contains utility functions)                  |
 
 ## Contact
 ```
