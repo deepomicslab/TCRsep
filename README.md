@@ -42,8 +42,8 @@ type `python eval.py -h` to display all the commandline options:
 |`--alpha=NUM`|The parameter α of TCRsep. Default 0.1.|                       
 |`--simulation`|Set to True in simulation experiments. Default False.|
 
-__Usages of TCRsep in Python script__ <br />
-Utilities of TCRsep module:
+__3 Usages of TCRsep in Python script__ <br />
+3.1 Utilities of TCRsep module:
 ```python
 from tcrsep.estimator import TCRsep
 sel_model = TCRsep(default_sel_model=True)
@@ -54,7 +54,7 @@ pgens, pposts = sel_model.get_prob(query_tcrs) #obtain pre- and post-selection p
 #draw samples from p_post
 post_samples = sel_model.sample(n=10)
 ```
-Sharing analysis by TCRsep:
+3.2 Sharing analysis by TCRsep:
 ```python
 from tcrsep.sharing_analysis import Sharing, DATCR
 sharing_predictor = Sharing('data/sharing')
