@@ -23,8 +23,8 @@ if __name__ == '__main__':
     parser.add_argument('--dropout',type=float,default=0.1)
     parser.add_argument('--val_ratio',type=float,default=0.1)    
     parser.add_argument('--post_data_path',type=str,default='None')
-    parser.add_argument('--pre_emb_path',type=str,default='None')
-    parser.add_argument('--post_emb_path',type=str,default='None')
+    parser.add_argument('--pre_data_path',type=str,default='None')
+    parser.add_argument('--pre_emb_path',type=str,default='None')    
     parser.add_argument('--gen_model_path',type=str,default='None')
     parser.add_argument('--save_dir',type=str,default='None')    
     parser.add_argument('--simulation',default=False,action='store_true')
@@ -51,20 +51,26 @@ if __name__ == '__main__':
         logger.info('Done loading embeddings for pre-selection clonetypes')
     else :
         gen_seqs = None
+
+    if gen_seqs is None:
+        if args.pre_data_path != "None":
+            sep = ',' if '.csv' in args.pre_data_path else '\t'
+            pre_df = pd.read_csv(args.pre_data_path,sep=sep)
+            gen_seqs = np.array(pre_df[['CDR3.beta','V','J']])
     
-    if args.post_emb_path != "None":
+    if args.post_data_path == "None":
+        assert False, 'Please provide post-selection data!'
+    if args.post_data_path.endswith('.npy.gz'):
         f = gzip.GzipFile(args.post_emb_path, "r")
         post_seqs = np.load(f)
         logger.info('Done loading embeddings for post-selection clonetypes')
     else:
-        assert args.post_data_path != "None", 'Please provide post-selection data!'
         sep = ',' if '.csv' in args.post_data_path else '\t'
         post_seqs = pd.read_csv(args.post_data_path,sep=sep)
         post_seqs = post_seqs[['CDR3.beta','V','J']].values
 
     emb_model_path = None if args.emb_model_path == 'None' else args.emb_model_path
     sel_model = TCRsep(dropout=args.dropout,alpha=args.alpha ,gen_model_path=args.gen_model_path,simulation=args.simulation,emb_model_path=emb_model_path)
-    
     
     seqs_pre,pre_emb,post_emb = sel_model.train(args.iters,post_seqs,gen_seqs,args.batchsize,save_model_path,args.val_ratio)
 

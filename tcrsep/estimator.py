@@ -112,7 +112,7 @@ class TCRsep:
             logger.info(f'Begin generating {n} pre-selection sequences using generation model from {self.default_gen_model.model_folder}.')
             seqs_pre = self.default_gen_model.sample(n)
             logger.info('Done!')
-
+        
         if type(seqs_pre[0][0]) == str or type(seqs_pre[0][0]) == np.str or type(seqs_pre[0][0]) == np.str_: #need to get full TCR-beta
             seqs_pre_full = cdr2full(seqs_pre,multi_process=True)  #v-j-cdr3
             if type(seqs_pre_full[0]) != str:
