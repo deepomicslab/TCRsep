@@ -41,7 +41,7 @@ Use the TCRsep to infer selection factors, pre- and post-selection probabilities
 |`--alpha=NUM`|The parameter α of TCRsep. Default 0.1.|                       
 |`--simulation`|Set to True in simulation experiments. Default False.|
 
-
+Usages of TCRsep in Python script
 ```python
 from tcrsep.estimator import TCRsep
 sel_model = TCRsep() 
