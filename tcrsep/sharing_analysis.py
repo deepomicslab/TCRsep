@@ -125,7 +125,7 @@ class Sharing(Sharing_analysis):
         else :
             return sharings
     
-    def sharing_spectrum(self,gen_model_path,sel_model_path,est_num=1000000):
+    def sharing_spectrum(self,gen_model_path=None,sel_model_path=None,est_num=1000000):
         gen_model,sel_model = self.load_model(gen_model_path,sel_model_path)
         #rejection sampler
         syn_samples,weights,_ = sampler(gen_model,sel_model,est_num)

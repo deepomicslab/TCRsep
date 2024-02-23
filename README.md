@@ -42,12 +42,12 @@ type `python eval.py -h` to display all the commandline options:
 |`--alpha=NUM`|The parameter α of TCRsep. Default 0.1.|                       
 |`--simulation`|Set to True in simulation experiments. Default False.|
 
-__Usages of TCRsep in Python script__
+__Usages of TCRsep in Python script__ <br />
 Utilities of TCRsep module:
 ```python
 from tcrsep.estimator import TCRsep
 sel_model = TCRsep(default_sel_model=True)
-query_tcrs =  [['CASTQKPSYEQYF','TRBV6-9','TRBJ2-7'],['CARGPYNEQFF','TRBV6-9','TRBJ2-1']]
+query_tcrs = [['CASTQKPSYEQYF','TRBV6-9','TRBJ2-7'], ['CARGPYNEQFF','TRBV6-9','TRBJ2-1']]
 sel_factors = sel_model.predict_weights(query_tcrs) #obtain selection factors
 pgens, pposts = sel_model.get_prob(query_tcrs) #obtain pre- and post-selection probs 
 
@@ -58,48 +58,18 @@ Sharing analysis by TCRsep:
 ```python
 from tcrsep.sharing_analysis import Sharing, DATCR
 sharing_predictor = Sharing('data/sharing')
-'''ffff'''
-sharing_pre,sharing_real = sharing_predictor.predict_sharing('results/test/query_data.csv',get_actual_sharing=True) 
-spectrum_pre,spectrum_real = sharing_predictor.sharing_spectrum(gen_model_path='models/generation_model/human_T_beta',sel_model_path='results/test2/tcrsep.pth' ,est_num=100000) 
-```
-Use the pretrained TCRsep model for downstream applications:
-```python
-log_probs = model.sampling_tcrsep_batch(tcrs)   #probability inference
-new_tcrs = model.generate_tcrsep(num_to_gen=1000, batch_size= 100)    #generation
-embs = model.get_embedding(tcrs)    #embeddings for tcrs
-```
-#### Updates
-The downstream applications can be also applied to CDR3+V+J data
-```python
-new_clonetypes = model.generate_tcrsep_vj(num_to_gen=1000, batch_size= 100) #generation
-log_probs_clonetypes = model.sampling_tcrsep_batch(clone_types) # get the probs of CDR3_V_J
-#size of clone_types: 3xlength ([[cdr1,cdr2,cdr3...],[v1,v2,v3..],[j1,j2,j3...]])
-```
 
- We provide a tutorial jupyter notebook named [tutorial.ipynb](https://github.com/jiangdada1221/TCRsep/blob/main/tutorial.ipynb). It contains most of the functional usages of TCRsep which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation. <br />
+#predict sharing numbers of TCRs in query_data.csv among 
+#repertoires in the folder data/sharing
+sharing_pre,sharing_real = sharing_predictor.predict_sharing('data/query_data_evaled.csv') 
 
- ## Command line usages
+#predict the sharing spectrum
+spectrum_pre,spectrum_real = sharing_predictor.sharing_spectrum(est_num=100000) 
 
- We have provided the scripts for the experiments in the paper via the folder [tcrsep/scripts](https://github.com/jiangdada1221/TCRsep/tree/main/tcrsep/scripts). <br />
-
- ```
-python train.py --path_train ../data/TCRs_train.csv --epoch 20 --learning_rate 0.0001 --store_path ../results/model.pth 
+#Identify DATCRs
+DATCR_predictor = DATCR('data/sharing')
+pvalues = DATCR_predictor.pvalue('data/query_data_evaled.csv')
 ```
-To train a TCRsep (with vj) model, the data file needs to have the columns named 'seq', 'v', 'j'. Insert 'python train.py --h' for more details.<br />
-```
-python evaluate.py --test_path ../data/pdf_test.csv --model_path ../results/model.pth
-```
-To compute the Pearson correlation coefficient of the probability inference task on test set. <br />
-```
-python generate.py --model_path ../results/model.pth --n 10000 --store_path ../results/gen_seq.txt
-```
-Use the pretrained TCRsep to generate new sequences. Type 'python generate.py --h' for more details <br />
-```
-python classify.py --path_train ../data/train.csv --path_test ../data/test.csv --epoch 20 --learning_rate 0.0001
-```
-Use TCRsep-c for classification task. The files should have two columns: 'seq' and 'label'. Type 'python classify.py --h' for more details. <br /> 
-Note that the parameters unspecified will use the default ones (e.g. batch size) <br /><br />
-The python files and their usages are shown below: <br />
 
 | Module name                                    | Usage                                              |    
 |------------------------------------------------|----------------------------------------------------|
