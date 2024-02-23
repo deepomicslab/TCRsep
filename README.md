@@ -51,7 +51,7 @@ query_tcrs = [['CASTQKPSYEQYF','TRBV6-9','TRBJ2-7'], ['CARGPYNEQFF','TRBV6-9','T
 sel_factors = sel_model.predict_weights(query_tcrs) #obtain selection factors
 pgens, pposts = sel_model.get_prob(query_tcrs) #obtain pre- and post-selection probs 
 
-#draw samples from p_post
+# draw samples from p_post
 post_samples = sel_model.sample(n=10)
 ```
 3.2 Sharing analysis by TCRsep:
@@ -59,14 +59,13 @@ post_samples = sel_model.sample(n=10)
 from tcrsep.sharing_analysis import Sharing, DATCR
 sharing_predictor = Sharing('data/sharing')
 
-#predict sharing numbers of TCRs in query_data.csv among 
-#repertoires in the folder data/sharing
+# predict sharing numbers of TCRs in query_data.csv among reps in the folder, "data/sharing"
 sharing_pre,sharing_real = sharing_predictor.predict_sharing('data/query_data_evaled.csv') 
 
-#predict the sharing spectrum
+# predict the sharing spectrum for reps in "data/sharing"
 spectrum_pre,spectrum_real = sharing_predictor.sharing_spectrum(est_num=100000) 
 
-#Identify DATCRs
+# identify DATCRs
 DATCR_predictor = DATCR('data/sharing')
 pvalues = DATCR_predictor.pvalue('data/query_data_evaled.csv')
 ```
@@ -83,9 +82,10 @@ pvalues = DATCR_predictor.pvalue('data/query_data_evaled.csv')
 
 ## Contact
 ```
-Name: Yuepeng Jiang
+Author: Yuepeng Jiang
 Email: yuepjiang3-c@my.cityu.edu.hk/yuj009@eng.ucsd.edu/jiangdada12344321@gmail.com
-Note: For instant query, feel free to send me an email since I check email often. Otherwise, you may open an issue section in this repository.
+Note: For instant query, feel free to send me an email since I check email often. 
+Otherwise, you may open an issue section in this repository.
 ```
 
 ## License
