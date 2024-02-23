@@ -70,6 +70,8 @@ DATCR_predictor = DATCR('data/sharing')
 pvalues = DATCR_predictor.pvalue('data/query_data_evaled.csv')
 ```
 
+For other customized usages, we provide the following module descriptions. Users can refer to the docstrings included in the script files for more details.
+
 | Module name                                    | Usage                                              |    
 |------------------------------------------------|----------------------------------------------------|
 | TCRsep.py                                      | Contain most functions of TCRsep                   |
@@ -92,7 +94,7 @@ Otherwise, you may open an issue section in this repository.
 
 Free use of TCRsep is granted under the terms of the GNU General Public License version 3 (GPLv3).
 
-## Citation 
+<!-- ## Citation 
 ```
 @article{jiang2023deep,
   title={Deep autoregressive generative models capture the intrinsics embedded in T-cell receptor repertoires},
@@ -104,4 +106,4 @@ Free use of TCRsep is granted under the terms of the GNU General Public License 
   year={2023},
   publisher={Oxford University Press}
 }
-```
+``` -->
