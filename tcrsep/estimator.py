@@ -21,12 +21,15 @@ def weights_init(m):
 
 class TCRsep:
     def __init__(self,hidden_size=128,out_dim=1,dropout=0.1,device='cuda:0',
-                 lr=1e-4,load_path=None,sizes=[128,128],alpha=0.1,simulation=False,gen_model_path=None,emb_model_path=None):         
+                 lr=1e-4,load_path=None,sizes=[128,128],alpha=0.1,simulation=False,gen_model_path=None,emb_model_path=None,default_sel_model=False):         
         self.model = NN(sizes,hidden_size,out_dim,dropout,simulation=simulation).to(device)
         if load_path is not None:
             self.model.load_state_dict(torch.load(load_path))
             self.model.eval()
             logger.info(f'Load the trained model from {load_path}')
+        if default_sel_model:
+            self.load_default_model()
+        self.load_path = load_path
         self.sizes,self.hidden_size,self.out_dim,self.dropout = sizes,hidden_size,out_dim,dropout
         self.lr = lr        
         self.device= device               
@@ -142,6 +145,13 @@ class TCRsep:
         self.fit(iters,loader_train,save_checkpoint=save_checkpoint,valid_emb = emb_valid,patience=patience)
         
         return seqs_pre,pre_emb,post_emb
+    
+    def load_default_model(self):
+        package_path = inspect.getfile(tcrsep)
+        sel_path = package_path.split('__init__.py')[0] + 'models/selection_model/CMV_whole.pth'
+        self.model.load_state_dict(torch.load(sel_path))
+        self.model.eval()
+        logger.info(f'Have loaded the default selection model.')
                 
     def predict_weights(self,samples,batch_size=128):
         '''

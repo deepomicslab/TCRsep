@@ -29,7 +29,7 @@ __Train a TCRsep model__: type `python train.py -h` to display all the commandli
 
 __Notes:__ the data file (.csv/.tsv) needs at least three columns specifying the CDR3β amino acid sequences, V genes, and J genes: __CDR3.beta__, __V__ and __J__. The save_dir will contain the pre-selection repertoire file, embeddings of pre- and post-selection repertoires, the selection model, and a json file recording the input arguments.  
 
-__Use the TCRsep to infer selection factors, pre- and post-selection probabilities__:
+__Use the TCRsep to infer selection factors, pre- and post-selection probabilities__:<br />
 type `python eval.py -h` to display all the commandline options:
 |Commands|Description|
 |--|--|
@@ -43,23 +43,24 @@ type `python eval.py -h` to display all the commandline options:
 |`--simulation`|Set to True in simulation experiments. Default False.|
 
 __Usages of TCRsep in Python script__
+Utilities of TCRsep module:
 ```python
 from tcrsep.estimator import TCRsep
-sel_model = TCRsep() 
-sel_model.train(iters=100,seqs_post=clonetypes)
-#'embedding_32.txt' records the numerical embeddings for each AA; We provide it under the 'tcrsep/data/' folder.
-#'tcrs' is the TCR repertoire ([tcr1,tcr2,....])
-model.create_model() #initialize the TCRsep model
-model.train_tcrsep(epochs=20, batch_size= 32, lr=1e-3) 
-#defining and training of TCRsep_vj can be found in tutorial.ipynb
+sel_model = TCRsep(default_sel_model=True)
+query_tcrs =  [['CASTQKPSYEQYF','TRBV6-9','TRBJ2-7'],['CARGPYNEQFF','TRBV6-9','TRBJ2-1']]
+sel_factors = sel_model.predict_weights(query_tcrs) #obtain selection factors
+pgens, pposts = sel_model.get_prob(query_tcrs) #obtain pre- and post-selection probs 
+
+#draw samples from p_post
+post_samples = sel_model.sample(n=10)
 ```
-Load the default models
-```pyton
-model = TCRsep(embedding_path='tcrsep/data/embedding_32.txt',load_data=False)
-model.create_model(load=True,path='tcrsep/models/tcrsep.pth')
-#TCRsep_vj model
-model_vj = TCRsep(embedding_path='tcrsep/data/embedding_32.txt',load_data=False,vj=True)
-model_vj.create_model(vj=True,load=True,path='tcrsep/models/tcrsep_vj.pth')
+Sharing analysis by TCRsep:
+```python
+from tcrsep.sharing_analysis import Sharing, DATCR
+sharing_predictor = Sharing('data/sharing')
+'''ffff'''
+sharing_pre,sharing_real = sharing_predictor.predict_sharing('results/test/query_data.csv',get_actual_sharing=True) 
+spectrum_pre,spectrum_real = sharing_predictor.sharing_spectrum(gen_model_path='models/generation_model/human_T_beta',sel_model_path='results/test2/tcrsep.pth' ,est_num=100000) 
 ```
 Use the pretrained TCRsep model for downstream applications:
 ```python
