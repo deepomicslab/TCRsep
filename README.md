@@ -82,6 +82,23 @@ For other customized usages, we provide the following module descriptions. Users
 | sharing_analysis.py                       | Modules used for sharing analysis                      |
 | utils.py                                  | N/A (contains utility functions)                  |
 
+## Processed data
+All the data used in the manuscript is publicly available, so we suggest readers refer to the original papers for more details. We also provide our processed data which can be publicly [downloaded](https).
+
+__Data details__:
+- 📁 `data/` 
+  - 📁 `Chu_data/`
+  - 📁 `CMV_reps/`
+    - 📁 `HIP_batch/`
+    - 📁 `Keck_batch/`
+  - 📁 `COVID19_reps/`
+    - 📁 `Capelle_data/`
+    - 📁 `ImmuneCODE/`
+    - 📁 `ImmuneCODE_release2/`
+  - 📁 `nonbinding_TCRs/`
+  - 📁 `specific_TCRs/`
+  - 📁 `simulation/`
+  
 ## Contact
 ```
 Author: Yuepeng Jiang
