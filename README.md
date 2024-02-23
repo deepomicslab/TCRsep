@@ -29,7 +29,8 @@ __Train a TCRsep model__: type `python train.py -h` to display all the commandli
 
 __Notes:__ the data file (.csv/.tsv) needs at least three columns specifying the CDR3β amino acid sequences, V genes, and J genes: __CDR3.beta__, __V__ and __J__. The save_dir will contain the pre-selection repertoire file, embeddings of pre- and post-selection repertoires, the selection model, and a json file recording the input arguments.  
 
-__Use the TCRsep to infer selection factors, pre- and post-selection probabilities__: type `python eval.py -h` to display all the commandline options:
+__Use the TCRsep to infer selection factors, pre- and post-selection probabilities__:
+type `python eval.py -h` to display all the commandline options:
 |Commands|Description|
 |--|--|
 |`--data_path=FILE`|(__required__) The path to the query repertoire file that needs to be evaluated. An example: `data/query_data.csv`.| 
