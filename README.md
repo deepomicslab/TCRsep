@@ -74,13 +74,13 @@ For other customized usages, we provide the following module descriptions. Users
 
 | Module name                                    | Usage                                              |    
 |------------------------------------------------|----------------------------------------------------|
-| TCRsep.py                                      | Contain most functions of TCRsep                   |
-| evaluate.py                                    | Evaluate the performance of probability inference  |
-| word2vec.py                                    | word2vec model for obtaining embeddings of AAs     |
-| model.py                                       | Deep learning models of TCRsep,TCRsep-c,TCRsep_vj  |
-| classification.py                              | Apply TCRsep-c for classification tasks            |
-| utils.py                                       | N/A (contains util functions)                      |
-| process_data.py                                | Construct the universal TCR pool                   |
+| estimator.py                                   | The TCRsep module                                  |
+| train.py                                       | Train TCRsep by command line                       |
+| eval.py                                        | Inference of sel_factors and probs by command line |
+| pgen.py                                        | The generation module that relies on the OLGA package|
+| rejection_sampler.py                      | Sampling module that enable to draw samples from P_post      |
+| sharing_analysis.py                            | Modules used for sharing analysis                      |
+| utils.py                                       | N/A (contains utility functions)                  |
 
 ## Contact
 ```
