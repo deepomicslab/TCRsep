@@ -100,8 +100,13 @@ __Data details__:
   - 📁 `nonbinding_TCRs/`
     - `10x_nonbinding_TCRs` Nonbinding TCRs extracted from 10x genomics. 
   - 📁 `specific_TCRs/`
-    - ``
-  - 📁 `simulation_reps/`
+    - `CMV_asso_emerson.csv` CMV associated TCRs identified in Emerson et al. 2017.
+    - `mira.csv` COVID-19 specific TCRs identied by MIRA expeirment in the ImmuneCODE project.
+    - `vdjdb_cmv.csv` CMV specific TCRs extracted from VDJdb
+    - `vdjdb_covid19.csv` YLQPRTFLL specific TCRs extracted from VDJdb
+  - 📁 `simulation_reps/`  
+
+Note that the repertoire files are included in the `reps` directorys (e.g. `Chu_reps`).
 
 ## Contact
 ```
