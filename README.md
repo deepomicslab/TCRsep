@@ -12,7 +12,8 @@ TCRsep depends on multiple packages. Make sure that the following dependencies a
 [tcr2vec](https://github.com/jiangdada1221/TCR2vec) (For embedding TCR) 
 
 ## Usage instructions
-__1. Train a TCRsep model__: type `python train.py -h` to display all the commandline options: 
+#### 1. Train a TCRsep model: 
+type `python train.py -h` to display all the commandline options: 
 |Commands|Description|
 |--|--|
 |`-h, --help`|show the help message and exit|
@@ -98,7 +99,7 @@ __Data details__:
   - 📁 `nonbinding_TCRs/`
   - 📁 `specific_TCRs/`
   - 📁 `simulation/`
-  
+
 ## Contact
 ```
 Author: Yuepeng Jiang
