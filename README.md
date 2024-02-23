@@ -27,6 +27,7 @@ Train a TCRsep model: type `python train.py -h` to display all the commandline o
 |`--batchsize=NUM`|Batch size. Default 1,000.|
 |`--val_ratio=NUM`|Fraction of the data serving as validation. Default 0.1.|  
 |`--simulation`|Set to True in simulation experiments. Default False.|
+
 __Notes:__ the data file (.csv) needs at least three columns specifying the CDR3β amino acid sequences, V genes, and J genes: __CDR3.beta__, __V__ and __J__.  <br />
 ```python
 from tcrsep.estimator import TCRsep
