@@ -70,6 +70,7 @@ spectrum_pre,spectrum_real = sharing_predictor.sharing_spectrum(est_num=100000)
 DATCR_predictor = DATCR('data/sharing')
 pvalues = DATCR_predictor.pvalue('data/query_data_evaled.csv')
 ```
+__Notes:__ the `query_data_evaled.csv` should contain an additional column `ppost` specifying the post-selection probabilities. Please [eval](https://github.com/jiangdada1221/TCRsep?tab=readme-ov-file#2-use-the-tcrsep-to-infer-selection-factors-pre--and-post-selection-probabilities) the query_data_file first if it only contains the `CDR3-V-J` information.  
 
 For other customized usages, we provide the following module descriptions. Users can refer to the docstrings included in the script files for more details.
 
@@ -88,7 +89,7 @@ All the data used in the manuscript is publicly available, so we suggest readers
 
 __Data details__:
 - 📁 `data/` 
-  - 📁 `Chu_data/`
+  - 📁 `Chu_reps/`
   - 📁 `CMV_reps/`
     - 📁 `HIP_batch/`
     - 📁 `Keck_batch/`
@@ -97,8 +98,10 @@ __Data details__:
     - 📁 `ImmuneCODE/`
     - 📁 `ImmuneCODE_release2/`
   - 📁 `nonbinding_TCRs/`
+    - `10x_nonbinding_TCRs` Nonbinding TCRs extracted from 10x genomics. 
   - 📁 `specific_TCRs/`
-  - 📁 `simulation/`
+    - ``
+  - 📁 `simulation_reps/`
 
 ## Contact
 ```
