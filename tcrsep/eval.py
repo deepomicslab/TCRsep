@@ -29,58 +29,52 @@ def load_model(gen_path,sel_path,alpha=0.1,dropout=0.1,simulation=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='')    
-    parser.add_argument('--emb_model_path',type=str,default='None')
-    parser.add_argument('--alpha',type=float,default=0.1)
-    parser.add_argument('--data_path',type=str,default='None')
+    parser.add_argument('--data_path',type=str)
     parser.add_argument('--data_emb_path',type=str,default='None')
     parser.add_argument('--sel_model_path',type=str,default='None')
+    parser.add_argument('--save_dir',type=str,default='result_eval/')
+    parser.add_argument('--emb_model_path',type=str,default='None')
     parser.add_argument('--gen_model_path',type=str,default='None')
-    parser.add_argument('--save_dir',type=str,default='None')
+    parser.add_argument('--alpha',type=float,default=0.1)        
     parser.add_argument('--simulation',default=False,action='store_true')    
     args = parser.parse_args()
 
-    if args.save_dir != 'None':
-        if not os.path.exists(args.save_dir):
-            os.mkdir(args.save_dir) 
-        save_seq_path = os.path.join(args.save_dir,'query_data.csv')
-        save_emb_path = os.path.join(args.save_dir,'query_data_embedding.npy.gz')
+    if not os.path.exists(args.save_dir):
+        os.mkdir(args.save_dir) 
+    save_seq_path = os.path.join(args.save_dir,'query_data.csv')
+    save_emb_path = os.path.join(args.save_dir,'query_data_embedding.npy.gz')
 
-    if args.data_path != 'None': #load data file
-        sep = ',' if '.csv' in args.data_path else '\t'
-        df = pd.read_csv(args.data_path,sep=sep)
-        samples = df[['CDR3.beta','V','J']].values
-        if 'full_seq' not in df.columns:            
-            full_seqs = cdr2full(samples,multi_process=True)  #v-j-cdr3
-            if type(full_seqs[0]) != str:
-                full_seqs = [c.decode('utf-8') for c in full_seqs]
-            seqs = [[s[0] for s in samples],full_seqs]            
-            df['full_seq'] = full_seqs
-        else :
-            seqs = [[cdr3 for cdr3 in df['CDR3.beta'].values],df['full_seq'].values]
-        
-        if args.data_emb_path == 'None':
-            emb_model_path = None if args.emb_model_path == 'None' else args.emb_model_path
-            emb = get_embedded_data(seqs,emb_model_path)                
-
-    if args.data_emb_path != "None":
+    sep = ',' if '.csv' in args.data_path else '\t'
+    df = pd.read_csv(args.data_path,sep=sep)
+    samples = df[['CDR3.beta','V','J']].values
+    if 'full_seq' not in df.columns:            
+        full_seqs = cdr2full(samples,multi_process=True)  #v-j-cdr3
+        if type(full_seqs[0]) != str:
+            full_seqs = [c.decode('utf-8') for c in full_seqs]
+        seqs = [[s[0] for s in samples],full_seqs]            
+        df['full_seq'] = full_seqs
+    else :
+        seqs = [[cdr3 for cdr3 in df['CDR3.beta'].values],df['full_seq'].values]
+    
+    if args.data_emb_path == 'None':
+        emb_model_path = None if args.emb_model_path == 'None' else args.emb_model_path
+        emb = get_embedded_data(seqs,emb_model_path)                
+    else:
         f = gzip.GzipFile(args.data_emb_path, "r")
         emb = np.load(f)
         logger.info(f'Done loading embeddings from {args.data_emb_path}')
 
-    if args.save_dir != 'None':
-        f = gzip.GzipFile(save_emb_path, "w") 
-        np.save(file=f, arr=emb)
+    f = gzip.GzipFile(save_emb_path, "w") 
+    np.save(file=f, arr=emb)
         
     gen_model,sel_model = load_model(args.gen_model_path,args.sel_model_path,alpha=args.alpha,simulation=args.simulation)        
     sel_factors= sel_model.predict_weights(emb)
 
-    if args.data_path != 'None':
-        df['sel_factors'] = sel_factors
-        if 'pgen' not in df.columns:
-            logger.info('Begin computing pgens using OLGA')
-            pgen = gen_model.p_gen(samples)
-            logger.info('Done!')
-            df['pgen'] = pgen
-        df['ppost'] = df['pgen'].values * df['sel_factors'].values
-        if args.save_dir != 'None':
-            df.to_csv(save_seq_path,sep=sep)            
+    df['sel_factors'] = sel_factors
+    if 'pgen' not in df.columns:
+        logger.info('Begin computing pgens using OLGA')
+        pgen = gen_model.p_gen(samples)
+        logger.info('Done!')
+        df['pgen'] = pgen
+    df['ppost'] = df['pgen'].values * df['sel_factors'].values
+    df.to_csv(save_seq_path,sep=sep,index=False)            

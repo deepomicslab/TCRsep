@@ -12,7 +12,7 @@ import tcrsep
 
 class Generation_model:
     def __init__(self,model_folder=None,processes=None,change_sep=False):
-        if model_folder is None:
+        if model_folder is None or model_folder == "None":
             package_path = inspect.getfile(tcrsep)
             model_folder = package_path.split('__init__.py')[0] + 'models/generation_model/CMV_whole'
         self.model_folder = model_folder

@@ -86,7 +86,7 @@ class TCRsep:
                 optimizer.step()
                 scheduler.step() 
                 
-                if valid_emb is not None and i % 200 == 0 and i > 1000:
+                if valid_emb is not None and i % 200 == 0 and i > 500:
                     self.model.eval()
                     ws,_ = self.model(valid_emb[0])
                     ws = ws.detach().cpu().numpy()
@@ -110,13 +110,14 @@ class TCRsep:
 
     def train(self,iters,seqs_post,seqs_pre=None,batch_size=1000,save_checkpoint=None,valid_ratio=0.0,patience=5):
         #assert emb_model_path is not None, logger.info('You need to specify the directory of embedding model')
+        assert iters >500, "Iteration should be larger than 500!"
         if seqs_pre is None:
             n = len(seqs_post)            
             logger.info(f'Begin generating {n} pre-selection sequences using generation model from {self.default_gen_model.model_folder}.')
             seqs_pre = self.default_gen_model.sample(n)
             logger.info('Done!')
         
-        if type(seqs_pre[0][0]) == str or type(seqs_pre[0][0]) == np.str or type(seqs_pre[0][0]) == np.str_: #need to get full TCR-beta
+        if type(seqs_pre[0][0]) in [np.str, np.str_,str]: #need to get full TCR-beta
             seqs_pre_full = cdr2full(seqs_pre,multi_process=True)  #v-j-cdr3
             if type(seqs_pre_full[0]) != str:
                 seqs_pre_full = [c.decode('utf-8') for c in seqs_pre_full]
@@ -160,12 +161,12 @@ class TCRsep:
         self.model.eval() 
         batch_num = len(samples) // batch_size +1
         weights_pre = []
+        if type(samples[0][0]) in [str ,np.str,np.str_]:
+                samples = get_embedded_data(samples,self.emb_model_path)
         for i in range(batch_num):
             if len(samples[i*batch_size:(i+1)*batch_size]) == 0:
                 continue
-            samples_sub = samples[i * batch_size:(i+1)*batch_size]
-            if type(samples_sub[0]) == str or type(samples_sub[0]) == np.str or type(samples_sub[0]) == np.str_:
-                samples_sub = get_embedded_data(samples_sub,self.emb_model_path)
+            samples_sub = samples[i * batch_size:(i+1)*batch_size]            
             weights_pre_tmp,_ = self.model(torch.FloatTensor(samples_sub).to(self.device))  
             weights_pre.append(weights_pre_tmp.detach().cpu().numpy()[:,0])
         ws_pre = np.concatenate(weights_pre)          

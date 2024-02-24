@@ -142,7 +142,7 @@ class Sharing(Sharing_analysis):
     def load_model(self,gen_path,sel_path):
         if gen_path is None or gen_path == 'CMV':
             package_path = inspect.getfile(tcrsep)
-            gen_path = package_path.split('__init__.py')[0] + 'models/generation_model/CMV_pos'
+            gen_path = package_path.split('__init__.py')[0] + 'models/generation_model/CMV_whole'
         elif gen_path == 'COVID19':
             package_path = inspect.getfile(tcrsep)
             gen_path = package_path.split('__init__.py')[0] + 'models/generation_model/COVID19'
@@ -150,7 +150,7 @@ class Sharing(Sharing_analysis):
 
         if sel_path is None or sel_path == 'CMV':
             package_path = inspect.getfile(tcrsep)
-            sel_path = package_path.split('__init__.py')[0] + 'models/selection_model/CMV_pos.pth'
+            sel_path = package_path.split('__init__.py')[0] + 'models/selection_model/CMV_whole.pth'
         elif sel_path == 'COVID19':
             package_path = inspect.getfile(tcrsep)
             sel_path = package_path.split('__init__.py')[0] + 'models/selection_model/COVID19.pth'
