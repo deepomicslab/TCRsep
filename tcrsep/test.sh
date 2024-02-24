@@ -1,12 +1,12 @@
 #test basic training 
-# python train.py --post_data_path data/HIP13610.csv \
+# python train.py --post_data_path data/example.csv \
 #                 --save_dir results/test0
 #test provide the pre_data
 # python train.py --iters 1000 \
 #                 --alpha 0.1 \
 #                 --val_ratio 0.05 \
 #                 --batchsize 1000 \
-#                 --post_data_path data/HIP13610.csv \
+#                 --post_data_path data/example.csv \
 #                 --save_dir results/test1 \
 #                 --gen_model_path models/generation_model/CMV_whole/ \
 #                 --pre_data_path results/test0/pre-sel.csv
