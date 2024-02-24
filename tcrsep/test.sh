@@ -21,8 +21,8 @@
 #                 --pre_data_path results/test0/pre_emb.npy.gz
 
 #test basic eval
-# python eval.py  --data_path data/query_data.csv \
-#                 --save_dir results/test4
+python eval.py  --data_path data/query_data.csv \
+                --save_dir results/test4
 
 #test add embedding
 # python eval.py  --data_path data/query_data.csv \

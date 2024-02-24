@@ -1,18 +1,18 @@
 import numpy as np
-from tcrsep.estimator import TCRsep
-from tcrsep.dataset import *
 import logging
-from tcrsep.utils import *
-import os
-import argparse
-import gzip
-from tcrsep.pgen import Generation_model
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logging.getLogger("tape").setLevel(logging.WARNING)
+from tcrsep.estimator import TCRsep
+from tcrsep.dataset import *
+from tcrsep.utils import *
+import os
+import argparse
+import gzip
+from tcrsep.pgen import Generation_model
 
 def load_model(gen_path,sel_path,alpha=0.1,dropout=0.1,simulation=False):
     if gen_path =='None':

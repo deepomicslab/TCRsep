@@ -17,7 +17,6 @@ def sampler(gen_model,estimator,N,c=10,multiple=10,tcrsep=True,emb_model_path=No
     embeds = []
     while len(new_samples) < N:        
         num_left = N - len(new_samples)        
-        print(num_left)
         num_gen = multiple * num_left
         samples = gen_model.sample(num_gen) # N x d    
         samples_ori = copy(samples) #only provide indexes

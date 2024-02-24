@@ -16,19 +16,19 @@ from scipy.optimize import minimize
 import math
 import inspect
 import tcrsep
+import logging
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(__name__)
+logging.getLogger("tape").setLevel(logging.WARNING)
 from tcr2vec.model import TCR2vec
 from tcrsep.dataset import *
 import logging
 from sympy import expand, symbols
 import mpmath
 from torch.utils.data import DataLoader
-
-logging.basicConfig(
-    format='%(asctime)s %(levelname)-8s %(message)s',
-    level=logging.INFO,
-    datefmt='%Y-%m-%d %H:%M:%S')
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 AAS = 'ACDEFGHIKLMNPQRSTVWY'
 
@@ -662,6 +662,7 @@ def com_aa_fre(cdr3s):
     return res
 
 def get_embedded_data(seqs,emb_model_path=None,L2_norm=True):
+
     if emb_model_path is None:
         package_path = inspect.getfile(tcrsep)
         emb_model_path = package_path.split('__init__.py')[0] + 'models/embedding_model/'
