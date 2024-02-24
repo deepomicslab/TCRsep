@@ -36,7 +36,7 @@ sharing_predictor = Sharing('data/sharing')
 sharing_pre,sharing_real = sharing_predictor.predict_sharing('data/query_data_evaled.csv') 
 
 # predict the sharing spectrum for reps in "data/sharing"
-spectrum_pre,spectrum_real = sharing_predictor.sharing_spectrum(est_num=100000) 
+spectrum_pre,spectrum_real = sharing_predictor.sharing_spectrum(est_num=10000) 
 
 # identify DATCRs
 DATCR_predictor = DATCR('data/sharing')
