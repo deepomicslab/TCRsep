@@ -130,14 +130,5 @@ Free use of TCRsep is granted under the terms of the GNU General Public License 
 
 <!-- ## Citation 
 ```
-@article{jiang2023deep,
-  title={Deep autoregressive generative models capture the intrinsics embedded in T-cell receptor repertoires},
-  author={Jiang, Yuepeng and Li, Shuai Cheng},
-  journal={Briefings in Bioinformatics},
-  volume={24},
-  number={2},
-  pages={bbad038},
-  year={2023},
-  publisher={Oxford University Press}
-}
+
 ``` -->
