@@ -23,7 +23,8 @@ type `python train.py -h` to display all the commandline options:
 |`--emb_model_path=DIR`|The path to the directory of the embedding model. If not specified, will use the pretrained TCR2vec and CDR3vec models.|
 |`--gen_model_path=DIR`|The path to the generation model. If not specified, will use the default generation model inferred on Emerson data.|
 |`--iters=NUM`|Iterations for the training process. Default 10,000.|
-|`--alpha=NUM`|The parameter α. Recommended using the default value 0.1.|                       
+|`--alpha=NUM`|The parameter α. Recommended using the default value 0.1.|
+|`--dropout=NUM`|The dropout rate. Default 0.1.|                       
 |`--batchsize=NUM`|Batch size. Default 1,000.|
 |`--val_ratio=NUM`|Fraction of the data serving as validation. Default 0.1.|  
 |`--simulation`|Set to True in simulation experiments. Default False.|

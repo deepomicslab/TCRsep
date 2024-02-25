@@ -24,7 +24,9 @@ from tcrsep.estimator import TCRsep
 sel_model = TCRsep(default_sel_model=True)
 query_tcrs = [['CASTQKPSYEQYF','TRBV6-9','TRBJ2-7'], ['CARGPYNEQFF','TRBV6-9','TRBJ2-1']]
 sel_factors = sel_model.predict_weights(query_tcrs) #obtain selection factors
+sel_factors_ = sel_model.predict_weights(np.random.randn(2,256)) #obtain selection factors
 pgens, pposts = sel_model.get_prob(query_tcrs) #obtain pre- and post-selection probs 
+pgens, pposts = sel_model.get_prob([query_tcrs,np.random.randn(2,256)]) #obtain pre- and post-selection probs 
 
 # draw samples from p_post
 post_samples = sel_model.sample(n=10)

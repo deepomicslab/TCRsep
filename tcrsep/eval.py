@@ -33,7 +33,6 @@ if __name__ == '__main__':
     parser.add_argument('--data_emb_path',type=str,default='None')
     parser.add_argument('--sel_model_path',type=str,default='None')
     parser.add_argument('--save_dir',type=str,default='result_eval/')
-    parser.add_argument('--emb_model_path',type=str,default='None')
     parser.add_argument('--gen_model_path',type=str,default='None')
     parser.add_argument('--alpha',type=float,default=0.1)        
     parser.add_argument('--simulation',default=False,action='store_true')    
@@ -57,7 +56,7 @@ if __name__ == '__main__':
         seqs = [[cdr3 for cdr3 in df['CDR3.beta'].values],df['full_seq'].values]
     
     if args.data_emb_path == 'None':
-        emb_model_path = None if args.emb_model_path == 'None' else args.emb_model_path
+        emb_model_path = None #use the default embedding model!
         emb = get_embedded_data(seqs,emb_model_path)                
     else:
         f = gzip.GzipFile(args.data_emb_path, "r")

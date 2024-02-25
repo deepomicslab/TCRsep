@@ -19,10 +19,10 @@ if __name__ == '__main__':
     parser.add_argument('--post_data_path',type=str)
     parser.add_argument('--save_dir',type=str,default='result/')
     parser.add_argument('--pre_data_path',type=str,default='None')
-    parser.add_argument('--emb_model_path',type=str,default='None')
     parser.add_argument('--gen_model_path',type=str,default='None')
     parser.add_argument('--iters',type=int,default=10000)
     parser.add_argument('--alpha',type=float,default=0.1)
+    parser.add_argument('--dropout',type=float,default=0.1)
     parser.add_argument('--batchsize',type=int,default=1000)    
     parser.add_argument('--val_ratio',type=float,default=0.1)        
     parser.add_argument('--simulation',default=False,action='store_true')
@@ -60,8 +60,8 @@ if __name__ == '__main__':
         post_seqs = post_seqs[['CDR3.beta','V','J']].values
         logger.info(f'Done loading TCR data from {args.post_data_path}')
 
-    emb_model_path = None if args.emb_model_path == 'None' else args.emb_model_path
-    sel_model = TCRsep(alpha=args.alpha ,gen_model_path=args.gen_model_path,simulation=args.simulation,emb_model_path=emb_model_path)
+    emb_model_path = None
+    sel_model = TCRsep(alpha=args.alpha ,gen_model_path=args.gen_model_path,simulation=args.simulation,emb_model_path=emb_model_path,dropout=args.dropout)
     
     seqs_pre,pre_emb,post_emb = sel_model.train(args.iters,post_seqs,gen_seqs,args.batchsize,save_model_path,args.val_ratio)
 

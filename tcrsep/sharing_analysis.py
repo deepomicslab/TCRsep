@@ -66,15 +66,22 @@ class Sharing_analysis:
         else :
             assert False, "Please eval the query file first;"
         return query_data,pposts
+    
+    def get_publicness(self,clonetypes):
+        '''
+        Get the sharing numbers of the input clonetypes
+        '''
+        return np.array([self.sharing_info[c] for c in clonetypes])
 
 class DATCR(Sharing_analysis):
-    def __init__(self,rep_dir,sharing_thre=5):
-        
+    def __init__(self,rep_dir):
+        '''
+        @rep_dir: the directory that containts repertoires
+        '''
         super(DATCR,self).__init__(rep_dir)
-        self.sharing_thre= sharing_thre
         self.pposts = None
-        self.query_data = list(self.sharing_info.keys())
-        self.query_data = [c for c in self.query_data if self.sharing_info[c] >=self.sharing_thre] #whole candidate clonetypes
+        # self.query_data = list(self.sharing_info.keys())
+        # self.query_data = [c for c in self.query_data if self.sharing_info[c] >=self.sharing_thre] #whole candidate clonetypes
 
     def p_data(self,query_data):
         pdata = p_data_pos(self.reps,query_data)
@@ -82,6 +89,13 @@ class DATCR(Sharing_analysis):
         return pdata
     
     def pvalue(self,query_file):
+        '''
+        Compute the pvalues of TCRs in the query_file regarding their publicness among the repertoires included in "rep_dir"
+        @query_file: path to the query_file that contains the clonetypes and THE POST-SEL Probabilities (specified in the "ppost" column).
+                     Please eval the query_file first if the "ppost" column is missing.
+        Return:
+            pvalues
+        '''
         query_data,pposts = self.process_query(query_file)        
         num = len(query_data)
         logger.info(f'Begin computing the P_data for {num} clonetypes')
@@ -112,6 +126,14 @@ class Sharing(Sharing_analysis):
         super(Sharing,self).__init__(rep_dir)
 
     def predict_sharing(self,query_file,get_actual_sharing=True):
+        '''
+        Predict the sharing numbers of TCRs specified in the query_file
+        @query_file: path to the query_file that contains the clonetypes and the corresponding post-sel probs.
+        @get_actual_sharing: if set to True, will also return the actual sharing numbers of TCRs.
+        Return:
+            predicted_sharing_numbers, actual_sharing_numbers (when get_actual_sharing=True) 
+            or  predicted_sharing_numbers (when get_actual_sharing=False)
+        '''
         query_data,pposts = self.process_query(query_file)
         Nis = [len(rep) for rep in self.reps]
         sharings = []
@@ -126,6 +148,14 @@ class Sharing(Sharing_analysis):
             return sharings
     
     def sharing_spectrum(self,gen_model_path=None,sel_model_path=None,est_num=1000000):
+        '''
+        Predict the sharing spectrum. Will generate est_num of TCRs from P_post and compute the sharing spectrum using the generating function.
+        @gen_model_path: path to the directory of the generation model. If not specified, will use the default generation model.
+        @sel_model_path: path to the selection model. If not specified, will use the default selection model.
+        @est_num: the number of TCRs to be generated to estimate the integral in the generating function.
+        Return:
+            A dictionary recording the predicted sharing spectrum, a dictionary recording the actual sharing spectrum
+        '''
         gen_model,sel_model = self.load_model(gen_model_path,sel_model_path)
         #rejection sampler
         syn_samples,weights,_ = sampler(gen_model,sel_model,est_num)

@@ -20,9 +20,18 @@ def weights_init(m):
         torch.nn.init.xavier_uniform(m.weight.data)
 
 class TCRsep:
-    def __init__(self,hidden_size=128,out_dim=1,dropout=0.1,device='cuda:0',
-                 lr=1e-4,load_path=None,sizes=[128,128],alpha=0.1,simulation=False,gen_model_path=None,emb_model_path=None,default_sel_model=False):         
-        self.model = NN(sizes,hidden_size,out_dim,dropout,simulation=simulation).to(device)
+    def __init__(self,alpha=0.1,dropout=0.1,device='cuda:0',load_path=None,
+                simulation=False,gen_model_path=None,default_sel_model=False):         
+        '''
+        @alpha: the parameter alpha of TCRsep
+        @device: the device name. Recommended specifying a GPU for acceralation.
+        @load_path: If specified, will load the TCRsep model from the given path; Otherwise, will initialize a new model        
+        @simulation: set to True in simulation experiments; Default is False
+        @gen_model_path: path to the directory of the generation model; if not provided, will load the default generation model inferred on the Emerson data.
+        @default_sel_model: if True, will load the default TCRsep model inferred on the Emerson data. Default is False.
+        '''
+        
+        self.model = NN(dropout,simulation=simulation).to(device)
         if load_path is not None:
             self.model.load_state_dict(torch.load(load_path))
             self.model.eval()
@@ -30,13 +39,13 @@ class TCRsep:
         if default_sel_model:
             self.load_default_model()
         self.load_path = load_path
-        self.sizes,self.hidden_size,self.out_dim,self.dropout = sizes,hidden_size,out_dim,dropout
-        self.lr = lr        
+        self.lr = 1e-4        
+        self.dropout= dropout
         self.device= device               
         
         self.alpha = alpha            
         self.default_gen_model = Generation_model(gen_model_path)    
-        self.emb_model_path = emb_model_path
+        self.emb_model_path = None
 
     def check_and_reInitialize(self,ws):
         indicator = False
@@ -108,8 +117,17 @@ class TCRsep:
             torch.save(self.model.state_dict(), save_checkpoint)                    
             logger.info(f'At Iteration {i} save the model to {save_checkpoint}')
 
-    def train(self,iters,seqs_post,seqs_pre=None,batch_size=1000,save_checkpoint=None,valid_ratio=0.0,patience=5):
-        #assert emb_model_path is not None, logger.info('You need to specify the directory of embedding model')
+    def train(self,iters,seqs_post,seqs_pre=None,batch_size=1000,save_checkpoint=None,valid_ratio=0.0):
+        '''
+        @iters: iteration for the training process.
+        @seqs_post: post-sel TCRs or their embedding numpy array. Its format should be [[CDR3_1,V_1,J_1],[CDR3_2,V_2,J_2],...], or in the shape of N x embedding_size.
+        @seqs_pre: pre-sel TCRs or their embedding numpy array. It not provided, will generate pre-sel TCRs using the default generation model.
+        @batch_size: the batch size for training.
+        @save_checkpoint: the path to save the selection model.
+        @valid_ratio: ratio of the training data that will be separated as validation data.
+        Return:
+            pre-sel sequences (or their embedding array), embedding array of pre-sel TCRs, embedding array of post-sel TCRs
+        '''
         assert iters >500, "Iteration should be larger than 500!"
         if seqs_pre is None:
             n = len(seqs_post)            
@@ -143,7 +161,7 @@ class TCRsep:
             post_emb = post_emb[index[int(len(index) * valid_ratio):]]                        
             emb_valid = [post_emb_val,pre_emb]
 
-        self.fit(iters,loader_train,save_checkpoint=save_checkpoint,valid_emb = emb_valid,patience=patience)
+        self.fit(iters,loader_train,save_checkpoint=save_checkpoint,valid_emb = emb_valid,patience=5)
         
         return seqs_pre,pre_emb,post_emb
     
@@ -156,7 +174,11 @@ class TCRsep:
                 
     def predict_weights(self,samples,batch_size=128):
         '''
-        @samples: embedding of input TCRs; size of L x d
+        Predict the selection factors for input samples.
+        @samples: input TCRs or their embedding numpy array.
+        @batch_size: predict the selection factors in batches with size of @batch_size.
+        Return:
+            selection factors
         '''
         self.model.eval() 
         batch_num = len(samples) // batch_size +1
@@ -175,6 +197,13 @@ class TCRsep:
         return ws_pre
     
     def sample(self,n,prob=False):
+        '''
+        Draw sample from P_post.
+        @n: the number of TCRs to be generated.
+        @prob: if True, will also return the corresponding probabilities.
+        Return:
+            A dictionary with keys of ['samples','sel_factors','embeddings','pgens'(when prob=True),'pposts'(when prob=True)]
+        '''
         syn_samples,sel_factors,embeddings = sampler(self.default_gen_model,self,n)
         re_dic = {'samples':syn_samples,'sel_factors':sel_factors,'embeddings':embeddings}
         if not prob:
@@ -187,14 +216,76 @@ class TCRsep:
             return re_dic
         
     def get_prob(self,samples):
-        if len(samples) == 2 and len(samples[0][0]) == 3:
-            sel_factors = self.predict_weights(samples[1])
+        '''
+        Compute probabilities of the input samples
+        @samples: in the format of [[CDR3_1,V_1,J_1],[CDR3_2,V_2,J_2],...] 
+                  or [[[CDR3_1,V_1,J_1],[CDR3_2,V_2,J_2],...]], embedding_array] (namely, samples[0] is the TCRs and samples[1] is the embedding array)
+        Return:
+            pgen,ppost
+        '''
+        if len(samples) == 2 and len(samples[0][0]) == 3: #[CDR3-V-J,embedding]
+            sel_factors = self.predict_weights(samples[1]) 
+            pgen = self.default_gen_model.p_gen(samples[0])
         else :
             sel_factors = self.predict_weights(samples)
-        pgen = self.default_gen_model.p_gen(samples)
+            pgen = self.default_gen_model.p_gen(samples)        
         pposts = pgen * sel_factors
         return pgen,pposts
-    
+
+class NN(nn.Module):
+    def __init__(self,dropout=0.1,simulation=True):
+        super().__init__()
+        in_dims = [128,128]
+        self.in_dims = in_dims #embedding sizes of TCRbeta and CDR3beta
+        hid_dim = 128
+        out_dim=1
+        LN = not simulation
+        if LN:
+            self.projects = nn.ModuleList([nn.Sequential(
+                nn.Linear(in_dims[i], hid_dim), 
+                nn.LayerNorm(hid_dim),
+                nn.ReLU(),
+                nn.Linear(hid_dim, hid_dim),
+                nn.LayerNorm(hid_dim),
+                nn.ReLU()
+            ) for i in range(len(in_dims))] )
+            self.project3 = nn.Sequential(
+                nn.Linear(hid_dim * len(in_dims), len(in_dims) * hid_dim // 2), 
+                nn.LayerNorm(len(in_dims) * hid_dim // 2),
+                nn.Dropout(dropout),
+                nn.ReLU(),                
+                nn.Linear(len(in_dims) * hid_dim // 2, hid_dim ),                
+                nn.LayerNorm(hid_dim),
+                nn.Dropout(dropout),
+                nn.ReLU(),                
+                nn.Linear(hid_dim, out_dim),nn.ReLU())
+        else :
+            self.projects = nn.ModuleList([nn.Sequential(
+                nn.Linear(in_dims[i], hid_dim),                 
+                nn.ReLU(),
+                nn.Linear(hid_dim, hid_dim),
+                nn.ReLU()
+            ) for i in range(len(in_dims))] )
+            self.project3 = nn.Sequential(
+                nn.Linear(hid_dim * len(in_dims), len(in_dims) * hid_dim // 2), 
+                nn.Dropout(dropout),
+                nn.ReLU(),                
+                nn.Linear(len(in_dims) * hid_dim // 2, hid_dim ), 
+                nn.Dropout(dropout),
+                nn.ReLU(),                
+                nn.Linear(hid_dim, out_dim),nn.ReLU())
+
+    def forward(self, x):  
+        xs = []
+        idx = 0
+        for i in range(len(self.in_dims)):
+            xs.append(x[:,idx:idx+self.in_dims[i]])
+            idx += self.in_dims[i]
+        xs = [self.projects[i](xs[i]) for i in range(len(xs))]
+        x = torch.cat(xs,-1)            
+        x1  =self.project3(x)                   
+        return x1,1     
+
 #simulation estimators
 class V_select:
     def __init__(self,samples,seed=43,temp=0.1):
@@ -262,7 +353,7 @@ class J_select:
         return {self.j_genes[i]:self.j_sel[i] for i in range(len(self.j_genes))}
 
 class VJ_select:
-    def __init__(self,samples,seed=0,temp=1.0):
+    def __init__(self,samples,seed=43,temp=1.0):
         #v_probs should be a list
         np.random.seed(seed)
         j_names = set()
@@ -374,53 +465,3 @@ class Motif_select:
         
         return weights        
     
-class NN(nn.Module):
-    def __init__(self,in_dims,hid_dim,out_dim=1,dropout=0.1,simulation=True):
-        super().__init__()
-        self.in_dims = in_dims
-        LN = not simulation
-        if LN:
-            self.projects = nn.ModuleList([nn.Sequential(
-                nn.Linear(in_dims[i], hid_dim), 
-                nn.LayerNorm(hid_dim),
-                nn.ReLU(),
-                nn.Linear(hid_dim, hid_dim),
-                nn.LayerNorm(hid_dim),
-                nn.ReLU()
-            ) for i in range(len(in_dims))] )
-            self.project3 = nn.Sequential(
-                nn.Linear(hid_dim * len(in_dims), len(in_dims) * hid_dim // 2), 
-                nn.LayerNorm(len(in_dims) * hid_dim // 2),
-                nn.Dropout(dropout),
-                nn.ReLU(),                
-                nn.Linear(len(in_dims) * hid_dim // 2, hid_dim ),                
-                nn.LayerNorm(hid_dim),
-                nn.Dropout(dropout),
-                nn.ReLU(),                
-                nn.Linear(hid_dim, out_dim),nn.ReLU())
-        else :
-            self.projects = nn.ModuleList([nn.Sequential(
-                nn.Linear(in_dims[i], hid_dim),                 
-                nn.ReLU(),
-                nn.Linear(hid_dim, hid_dim),
-                nn.ReLU()
-            ) for i in range(len(in_dims))] )
-            self.project3 = nn.Sequential(
-                nn.Linear(hid_dim * len(in_dims), len(in_dims) * hid_dim // 2), 
-                nn.Dropout(dropout),
-                nn.ReLU(),                
-                nn.Linear(len(in_dims) * hid_dim // 2, hid_dim ), 
-                nn.Dropout(dropout),
-                nn.ReLU(),                
-                nn.Linear(hid_dim, out_dim),nn.ReLU())
-
-    def forward(self, x):  
-        xs = []
-        idx = 0
-        for i in range(len(self.in_dims)):
-            xs.append(x[:,idx:idx+self.in_dims[i]])
-            idx += self.in_dims[i]
-        xs = [self.projects[i](xs[i]) for i in range(len(xs))]
-        x = torch.cat(xs,-1)            
-        x1  =self.project3(x)                   
-        return x1,1     
