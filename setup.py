@@ -21,7 +21,7 @@ setup(name='tcrsep',
             'Programming Language :: Python :: 3',
             ],
       packages=find_packages(),
-      install_requires=['numpy','torch>=1.7.0','tqdm','pandas','scikit-learn','Scipy','tcr2vec','olga','biopython','sympy'],
+      install_requires=['numpy','torch>=1.5.0','tqdm','pandas','scikit-learn','Scipy','tcr2vec','olga','biopython','sympy','matplotlib'],
       data_files = data_files_to_include,
       include_package_data=True,
       zip_safe=False)
