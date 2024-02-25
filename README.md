@@ -49,7 +49,7 @@ type `python eval.py -h` to display all the commandline options:
 ```python
 from tcrsep.estimator import TCRsep
 sel_model = TCRsep(default_sel_model=True)
-query_tcrs = [['CASTQKPSYEQYF','TRBV6-9','TRBJ2-7'], ['CARGPYNEQFF','TRBV6-9','TRBJ2-1']]
+query_tcrs = [['CASSLGAGGSGTEAFF','TRBV7-9','TRBJ1-1'], ['CASTKAGGSSYEQYF','TRBV6-5','TRBJ2-7']]
 sel_factors = sel_model.predict_weights(query_tcrs) #obtain selection factors
 pgens, pposts = sel_model.get_prob(query_tcrs) #obtain pre- and post-selection probs 
 
