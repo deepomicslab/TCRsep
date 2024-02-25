@@ -6,7 +6,7 @@ TCRsep is a python software for the inference of the selection factor for immune
 
 ## Installation
 TCRsep is available on PyPI and can be installed via pip: <br />
- ```pip install tcrsep``` <br />
+ ```pip install tcrsep``` <br /> <br />
 Or install TCRsep via Github: <br />
 ```
 git clone https://github.com/jiangdada1221/TCRsep.git
