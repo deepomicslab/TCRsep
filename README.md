@@ -13,10 +13,10 @@ git clone https://github.com/jiangdada1221/TCRsep.git
 cd TCRsep
 pip install .
 ```
-TCRsep depends on multiple packages. If the installation fails, make sure that the following dependencies are installed correctly: <br /> 
+TCRsep depends on multiple packages. It's highly recommended to manually install `torch` first. If the installation fails, make sure that the following dependencies are installed correctly: <br /> 
 `torch` >= 1.8.0 (Tested on torch [1.8.0+cuda11.1](https://pytorch.org/get-started/previous-versions/#v180))<br />
 [`olga`](https://github.com/statbiophys/OLGA) (For modeling the generation of TCR) <br />
-[`tcr2vec`](https://github.com/jiangdada1221/TCR2vec) (For embedding TCR) 
+[`tcr2vec`](https://github.com/jiangdada1221/TCR2vec) (For embedding TCR) <br /> 
 
 ## Usage instructions
 #### 1. Train a TCRsep model: 
