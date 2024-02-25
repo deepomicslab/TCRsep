@@ -7,8 +7,8 @@ TCRsep is a python software for the inference of the selection factor for immune
 ## Installation
 TCRsep is available on PyPI and can be installed via pip: <br />
  ```pip install tcrsep``` <br />
-TCRsep depends on multiple packages. Make sure that the following dependencies are installed correctly: <br /> torch >= 1.8.0 (Tested on torch [1.8.0+cuda11.1](https://pytorch.org/get-started/previous-versions/#v180))<br />
-[olga](https://github.com/statbiophys/OLGA) (For modeling the generation of TCR) <br />
+TCRsep depends on multiple packages. Make sure that the following dependencies are installed correctly: <br /> `torch` >= 1.8.0 (Tested on torch [1.8.0+cuda11.1](https://pytorch.org/get-started/previous-versions/#v180))<br />
+`[olga](https://github.com/statbiophys/OLGA)` (For modeling the generation of TCR) <br />
 [tcr2vec](https://github.com/jiangdada1221/TCR2vec) (For embedding TCR) 
 
 ## Usage instructions
