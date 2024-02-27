@@ -135,7 +135,7 @@ class TCRsep:
             seqs_pre = self.default_gen_model.sample(n)
             logger.info('Done!')
         
-        if type(seqs_pre[0][0]) in [np.str, np.str_,str]: #need to get full TCR-beta
+        if type(seqs_pre[0][0]) in [np.str_,str]: #need to get full TCR-beta
             seqs_pre_full = cdr2full(seqs_pre,multi_process=True)  #v-j-cdr3
             if type(seqs_pre_full[0]) != str:
                 seqs_pre_full = [c.decode('utf-8') for c in seqs_pre_full]
@@ -183,7 +183,7 @@ class TCRsep:
         self.model.eval() 
         batch_num = len(samples) // batch_size +1
         weights_pre = []
-        if type(samples[0][0]) in [str ,np.str,np.str_]:
+        if type(samples[0][0]) in [str ,np.str_]:
                 samples = get_embedded_data(samples,self.emb_model_path)
         for i in range(batch_num):
             if len(samples[i*batch_size:(i+1)*batch_size]) == 0:
