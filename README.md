@@ -124,7 +124,7 @@ Otherwise, you may open an issue section in this repository.
 
 ## License
 
-Free use of TCRsep is granted under the terms of the GNU General Public License version 3 (GPLv3).
+Free use of TCRsep is granted under the terms of the MIT License.
 
 <!-- ## Citation 
 ```
