@@ -90,7 +90,7 @@ type `python rejection_sampler.py -h` to display all the commandline options:
 |`--sample_num=NUM`|The number of simulated TCRs.|
 |`--temp=NUM`|The temperature parameter controling the sharpness of simulated selection factors. Default value 0.1.|
 |`--seed=NUM`|The seed controling the randomness. Default 43.|
-|Below are arguments specific for `Motif_select`|The following args will not impact Gene-related situations. |                       
+|Below are args specific for `Motif_select`|The following args will not impact Gene-related simulations. |                       
 |`--start_pos=NUM`|The starting position of CDR3 region. Default 3.|
 |`--k=NUM`|The length of selected motif. Default 3.|  
 |`--sel_pos=NUM`|Select the k-mer with certain frequency as the chosen motif. Possible values: `0`:the most frequent one; `1`:the medium one; `2`: the one with lowest frequency. Default 0.|
