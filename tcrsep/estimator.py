@@ -7,6 +7,7 @@ from tcrsep.utils import *
 from tcrsep.dataset import Loader
 from tcrsep.pgen import Generation_model
 from tcrsep.rejection_sampler import sampler
+from collections import defaultdict
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -314,8 +315,15 @@ class V_select:
     
     def predict_weights(self,samples):
         v_genes = [sample[1] for sample in samples]
-        v_gene_idx = [self.gene2idx[g] for g in v_genes]
-        return [self.v_sel[idx] for idx in v_gene_idx]
+        sels = []
+        for v in v_genes:
+            if v not in self.gene2idx:
+                sels.append(0)
+            else :
+                sels.append(self.v_sel[self.gene2idx[v]])
+        return sels
+        # v_gene_idx = [self.gene2idx[g] for g in v_genes]
+        # return [self.v_sel[idx] for idx in v_gene_idx]
 
     def selection_model(self):
         return {self.v_genes[i]:self.v_sel[i] for i in range(len(self.v_genes))}
@@ -346,8 +354,15 @@ class J_select:
     
     def predict_weights(self,samples):
         j_genes = [sample[2] for sample in samples]
-        j_gene_idx = [self.gene2idx[g] for g in j_genes]
-        return [self.j_sel[idx] for idx in j_gene_idx]
+        sels = []
+        for j in j_genes:
+            if j not in self.gene2idx:
+                sels.append(0)
+            else :
+                sels.append(self.j_sel[self.gene2idx[j]])
+        # j_gene_idx = [self.gene2idx[g] for g in j_genes]
+        # return [self.j_sel[idx] for idx in j_gene_idx]
+        return sels
 
     def selection_model(self):
         return {self.j_genes[i]:self.j_sel[i] for i in range(len(self.j_genes))}
@@ -380,11 +395,19 @@ class VJ_select:
         self.Z = 1 / sum_
         self.vj_sel = self.Z * vj_sel
         self.gene2idx = {self.vj_genes[i]:i for i in range(len(self.vj_genes))}
+        # self.gene2idx = defaultdict(lambda:-1, self.gene2idx)
     
     def predict_weights(self,samples):
         vj_genes = [(sample[1],sample[2]) for sample in samples]
-        vj_gene_idx = [self.gene2idx[g] for g in vj_genes]
-        return [self.vj_sel[idx] for idx in vj_gene_idx]
+        sels = []
+        for vj in vj_genes:
+            if vj not in self.gene2idx:
+                sels.append(0)
+            else :
+                sels.append(self.vj_sel[self.gene2idx[vj]])
+        # vj_gene_idx = [self.gene2idx[g] for g in vj_genes]
+        # return [self.vj_sel[idx] for idx in vj_gene_idx]
+        return sels
 
     def selection_model(self):
         return {self.vj_genes[i]:self.vj_sel[i] for i in range(len(self.vj_genes))}
@@ -415,7 +438,7 @@ class Motif_select:
         
         for key in motifs.keys():
             motifs[key] /= total_
-        # assert total_ > len(cdr3s_align) // 2, 'too many pad tokens; try to use different start_pos or k'        
+        
         # print(motifs)
         self.motifs = motifs     
         self.key_fre = [(k,motifs[k]) for k in motif_list]   
@@ -426,7 +449,7 @@ class Motif_select:
             sel_pos = len(self.motifs_sel) // 2
         elif sel_pos == 2:
             sel_pos = len(self.motifs_sel) - 1
-        print(sel_pos)
+        #print(sel_pos)
         motif_sel = np.ones(len(motifs.keys()))
         # motif_sel[0] = 0.1
         # motif_sel[1] = 2
