@@ -122,7 +122,7 @@ __Data details__:
   - 📁 `CMV_reps/`
     - 📁 `HIP_batch/`
     - 📁 `Keck_batch/`
-  - 📁 `ImmuneCODE/`
+  - 📁 `ImmuneCODE_reps/`
   - 📁 `Simulation/`
     - 📁 `simulation_reps/`
     - `Simulation_info.csv` Record the 500 selected pairs and their corresponding JSD values
