@@ -1,0 +1,15 @@
+{
+    "post_data_path": "sampled.csv.gz",
+    "save_dir": "emerson/",
+    "pre_data_path": "pre.csv.gz",
+    "gen_model_path": "models/generation_model/CMV_whole/",
+    "epochs": 500,
+    "alpha": 0.1,
+    "batchsize": 512,
+    "val_ratio": 0.1,
+    "lr": 0.0001,
+    "device": "cuda:0",
+    "save_emb": false,
+    "monitor": true,
+    "Z": "0.9829063"
+}

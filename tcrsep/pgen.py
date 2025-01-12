@@ -9,12 +9,24 @@ from math import ceil
 from collections import defaultdict
 import inspect
 import tcrsep
+import os
+import logging
+
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class Generation_model:
     def __init__(self,model_folder=None,processes=None,change_sep=False):
-        if model_folder is None or model_folder == "None":
+        if model_folder is None or model_folder == "None" or not os.path.exists(model_folder):
+            if model_folder is not None and model_folder != 'None' and not os.path.exists(model_folder):
+                logger.info("The path to generation model doesn't exist. Will load the default generation model.")
             package_path = inspect.getfile(tcrsep)
-            model_folder = package_path.split('__init__.py')[0] + 'models/generation_model/CMV_whole'
+            model_folder = package_path.split('__init__.py')[0] + 'models/generation_model/CMV_whole'            
+
         self.model_folder = model_folder
         params_file_name = f'{model_folder}/model_params.txt'
         marginals_file_name = f'{model_folder}/model_marginals.txt'

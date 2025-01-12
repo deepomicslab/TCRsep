@@ -54,7 +54,7 @@ def get_emb(tcrvec,loader,pool_method='mean',only_pool=False):
     emb = []
     tcrvec.eval()
     with torch.no_grad():
-        for batch in tqdm(loader):
+        for batch in loader:
             batch['input_ids'] = batch['input_ids'].to('cuda:0')
             batch['input_mask'] = batch['input_mask'].to('cuda:0')                     
             #self.model.l2_normalized=False
@@ -427,7 +427,7 @@ def l2_norm(emb):
 
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience."""
-    def __init__(self, patience=5, verbose=True, delta=0, path='checkpoint.pt', trace_func=print):
+    def __init__(self, patience=5, verbose=True, delta=0, path='None', trace_func=print):
         """
         Args:
             patience (int): How long to wait after last time validation loss improved.
@@ -456,21 +456,23 @@ class EarlyStopping:
 
         if self.best_score is None:
             self.best_score = score
-            self.save_checkpoint(val_loss, model)
+            if self.path is not None and self.path != 'None':
+                self.save_checkpoint(val_loss, model)
         elif score < self.best_score + self.delta:
             self.counter += 1
             logger.info(f'EarlyStopping counter: {self.counter} out of {self.patience}')
             if self.counter >= self.patience:
                 self.early_stop = True
-        else:
+        else:            
             self.best_score = score
-            self.save_checkpoint(val_loss, model)
+            if self.path is not None and self.path != 'None':
+                self.save_checkpoint(val_loss, model)
             self.counter = 0
 
     def save_checkpoint(self, val_loss, model):
         '''Saves model when validation loss decrease.'''
         if self.verbose:
-            logger.info(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
+            logger.info(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model to {self.path}')            
         torch.save(model.state_dict(), self.path)
         self.val_loss_min = val_loss     
 
@@ -554,7 +556,7 @@ def p_data_pos(reals,clones,start=5,end=10,nums=250,multiprocess=True):
     res_pdata = dict()
     clone2ns = defaultdict(list)
     clones_new = []
-    for clone in tqdm(clones):
+    for clone in clones:
         n1s,n2s = [],[]
         for real in reals:
             if clone in real:
@@ -594,6 +596,8 @@ def p_val_pos(prepares):
     samples_chunks = list(divide_chunks(clones_new, n))
     pool = mp.Pool(processes=processes)
     res = pool.map(p_val_pos_,samples_chunks)
+    pool.close()
+    pool.join()
     pvalues = np.concatenate(res)    
     return pvalues
 
@@ -661,6 +665,41 @@ def com_aa_fre(cdr3s):
         res[k] = fres
     return res
 
+# def get_embedded_data(seqs,emb_model_path=None,L2_norm=True):
+
+#     if emb_model_path is None:
+#         package_path = inspect.getfile(tcrsep)
+#         emb_model_path = package_path.split('__init__.py')[0] + 'models/embedding_model/'
+#     #print(emb_model_path + '/' + 'TCR2vec/')
+#     emb_model = TCR2vec(emb_model_path + '/' + 'TCR2vec/').to('cuda:0')
+#     emb_model.eval()
+ 
+#     emb_model_cdr3 = TCR2vec(emb_model_path + '/' + 'CDR3vec/').to('cuda:0')
+#     emb_model_cdr3.eval()        
+
+#     if len(seqs) == 2 and len(seqs[1][0]) >=60 : #containing full seqs
+#         full_seqs = seqs[1]
+#         cdr3s = seqs[0]
+#     else :
+#         full_seqs = cdr2full(seqs,multi_process=True)
+#         if type(full_seqs[0]) != str:
+#                 full_seqs = [c.decode('utf-8') for c in full_seqs]
+#         cdr3s = [s[0] for s in seqs]
+        
+#     dset = TCRLabeledDset(full_seqs,only_tcr=True)
+#     loader = DataLoader(dset,batch_size=128,collate_fn=dset.collate_fn,shuffle=False) 
+#     logger.info('Encoding TCR-beta sequences.')
+#     emb = get_emb(emb_model,loader)  
+#     dset = TCRLabeledDset(cdr3s,only_tcr=True)
+#     loader = DataLoader(dset,batch_size=128,collate_fn=dset.collate_fn,shuffle=False) 
+#     logger.info('Encoding CDR3 sequences.')
+#     emb_cdr3 = get_emb(emb_model_cdr3,loader)
+#     del emb_model,emb_model_cdr3
+#     if L2_norm: #perform L2 nomalization
+#         emb = l2_norm(emb)
+#         emb_cdr3 = l2_norm(emb_cdr3)
+#     return np.concatenate((emb,emb_cdr3),1)
+
 def get_embedded_data(seqs,emb_model_path=None,L2_norm=True):
 
     if emb_model_path is None:
@@ -678,17 +717,17 @@ def get_embedded_data(seqs,emb_model_path=None,L2_norm=True):
         cdr3s = seqs[0]
     else :
         full_seqs = cdr2full(seqs,multi_process=True)
-        if type(full_seqs[0]) != str:
-                full_seqs = [c.decode('utf-8') for c in full_seqs]
+        if type(full_seqs[0]) != str and type(full_seqs[0])!=np.str and type(full_seqs[0])!=np.str_:
+            full_seqs = [c.decode('utf-8') for c in full_seqs]
         cdr3s = [s[0] for s in seqs]
         
     dset = TCRLabeledDset(full_seqs,only_tcr=True)
     loader = DataLoader(dset,batch_size=128,collate_fn=dset.collate_fn,shuffle=False) 
-    logger.info('Encoding TCR-beta sequences.')
+    #logger.info('Encoding TCR-beta sequences.')
     emb = get_emb(emb_model,loader)  
     dset = TCRLabeledDset(cdr3s,only_tcr=True)
     loader = DataLoader(dset,batch_size=128,collate_fn=dset.collate_fn,shuffle=False) 
-    logger.info('Encoding CDR3 sequences.')
+    #logger.info('Encoding CDR3 sequences.')
     emb_cdr3 = get_emb(emb_model_cdr3,loader)
     del emb_model,emb_model_cdr3
     if L2_norm: #perform L2 nomalization
@@ -767,4 +806,31 @@ def get_sharing(cdr3s):
     for c in ref.keys():
         res[ref[c]] += 1
     return res
+
+
+def gene_to_num_str(gene_name: str,
+                    gene_type: str
+                   ) -> str:
+    """
+    Strip excess gene name info to number string.
+
+    Parameters
+    ----------
+    gene_name : str
+        Gene or allele name
+    gene_type : char
+        Genomic cassette type. (i.e. V, D, or J)
+
+    Returns
+    -------
+    num_str : str
+        Reduced gene or allele name with leading zeros and excess
+        characters removed.
+    """
+    gene_name = gene_name.partition('*')[0].lower()
+    gene_type = gene_type.lower()
+    pre_hyphen, hyphen, post_hyphen = gene_name.partition(gene_type)[-1].partition('-')
+    return gene_type + (pre_hyphen.lstrip('0') + hyphen + post_hyphen.lstrip('0')).replace('/', '')
+
+
 
