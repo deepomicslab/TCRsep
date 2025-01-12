@@ -48,7 +48,7 @@ type `python eval.py -h` to display all the commandline options:
 |`--save_dir=DIR`|The directory that saves all the output files. Default `result_eval/`.|  
 |`--device=STR`|The device to run TCRsep. Default `cuda:0`.|
 
-#### 3 Usages of TCRsep in Python script
+#### 3. Usages of TCRsep in Python script
 3.1 Utilities of TCRsep module:
 ```python
 from tcrsep.estimator import TCRsep
@@ -77,17 +77,17 @@ pvalues = DATCR_predictor.pvalue('data/query_data_evaled.csv')
 ```
 __Notes:__ the `query_data_evaled.csv` should contain an additional column `ppost` specifying the post-selection probabilities. Please [eval](https://github.com/jiangdada1221/TCRsep?tab=readme-ov-file#2-use-the-tcrsep-to-infer-selection-factors-pre--and-post-selection-probabilities) the `query_data` file first if it only contains the `CDR3-V-J` information.  
 
-#### 4 A quick demo of training a TCRsep model using Python script
+#### 4. A quick demo of training a TCRsep model using Python script
 ```python
 import pandas as pd
 from tcrsep.estimator import TCRsep
-#loading data
+#Load data
 post_df = pd.read_csv('data/demo/post_seqs.csv')
 gen_df = pd.read_csv('data/demo/gen_seqs.csv')
 post_samples = post_df[['CDR3.beta','V','J']].values
 gen_samples = gen_df[['CDR3.beta','V','J']].values
 
-#infer the selection model
+#Infer the selection model
 sel_model = TCRsep()
 sel_model.train(50,post_samples,gen_samples,valid_ratio=0.0)
 
@@ -95,7 +95,11 @@ sel_model.train(50,post_samples,gen_samples,valid_ratio=0.0)
 predictions = sel_model.predict_weights(post_samples)
 
 #Save the TCRsep model
+sel_model.save(save_dir='Directory_path')
 
+#Load the TCRsep model
+from tcrsep.estimator import load_tcrsep
+sel_model = load_tcrsep(load_dir='Directory_path')
 ```
 
 For other customized usages, we provide the following module descriptions. Users can refer to the docstrings included in the script files for more details.
