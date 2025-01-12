@@ -136,7 +136,7 @@ __Data details__:
     - `train.csv`
     - `valid.csv`
 
-Note that the repertoire files are included in the `reps/` directories (e.g. `Chu_reps/`).
+Note that some files were saved in the compressed format, requiring the argument `compression='gzip'` to open.
 
 ## Contact
 ```
