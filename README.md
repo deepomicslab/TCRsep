@@ -136,7 +136,7 @@ __Data details__:
     - `train.csv`
     - `valid.csv`
 
-Note that some files were saved in the compressed format, requiring the argument `compression='gzip'` to open.
+Note that some files were saved in the compressed format, requiring the argument `compression='gzip'` to load.
 
 ## Contact
 ```
