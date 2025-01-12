@@ -132,6 +132,9 @@ __Data details__:
     - 📁 `RA_reps`
     - 📁 `T1D_reps`
     - 📁 `CMV_reps`
+  - 📁 `Pretraining/`
+    - `train.csv`
+    - `valid.csv`
 
 Note that the repertoire files are included in the `reps/` directories (e.g. `Chu_reps/`).
 
