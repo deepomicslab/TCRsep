@@ -5,15 +5,15 @@ TCRsep is a python software for the inference of the selection factor for immune
 <img src="https://github.com/jiangdada1221/TCRsep/blob/main/figs/workflow_github.png" width="800"> <br />
 
 ## Installation
-TCRsep is available on PyPI and can be installed via pip: <br />
- ```pip install tcrsep``` <br /> <br />
-Or install TCRsep via Github: <br />
+Install TCRsep via Github (recommended): <br />
 ```
 git clone https://github.com/jiangdada1221/TCRsep.git
 cd TCRsep
 pip install .
-```
-TCRsep depends on multiple packages. It's highly recommended to manually install `torch` first. If the installation fails, make sure that the following dependencies are installed correctly: <br /> 
+``` 
+TCRsep is also available on PyPI and can be installed via pip: <br />
+ ```pip install tcrsep``` <br />
+TCRsep depends on multiple packages. It's __highly recommended__ to manually install the following packages first. If the installation fails, make sure that the following dependencies are installed correctly: <br /> 
 `torch` >= 1.8.0 (Tested on torch [1.8.0+cuda11.1](https://pytorch.org/get-started/previous-versions/#v180))<br />
 [`olga`](https://github.com/statbiophys/OLGA) (For modeling the generation of TCR) <br />
 [`tcr2vec`](https://github.com/jiangdada1221/TCR2vec) (For embedding TCR) <br /> 
@@ -58,7 +58,7 @@ sel_factors = sel_model.predict_weights(query_tcrs) #obtain selection factors
 pgens, pposts = sel_model.get_prob(query_tcrs) #obtain pre- and post-selection probs 
 
 # draw samples from p_post
-post_samples = sel_model.sample(n=10)
+post_samples = sel_model.sample(N=10)
 ```
 3.2 Sharing analysis by TCRsep:
 ```python

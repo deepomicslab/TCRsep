@@ -10,6 +10,5 @@
     "lr": 0.0001,
     "device": "cuda:0",
     "save_emb": false,
-    "monitor": true,
     "Z": "0.9963979"
 }
