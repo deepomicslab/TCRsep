@@ -11,8 +11,7 @@ git clone https://github.com/jiangdada1221/TCRsep.git
 cd TCRsep
 pip install .
 ``` 
-TCRsep is also available on PyPI and can be installed via pip: <br />
- ```pip install tcrsep``` <br />
+TCRsep is also available on PyPI and can be installed via pip: ```pip install tcrsep``` <br />
 TCRsep depends on multiple packages. It's __highly recommended__ to manually install the following packages first. If the installation fails, make sure that the following dependencies are installed correctly: <br /> 
 `torch` >= 1.8.0 (Tested on torch [1.8.0+cuda11.1](https://pytorch.org/get-started/previous-versions/#v180))<br />
 [`olga`](https://github.com/statbiophys/OLGA) (For modeling the generation of TCR) <br />
