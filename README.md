@@ -115,7 +115,7 @@ For other customized usages, we provide the following module descriptions. Users
 ## Processed data
 All the data used in the manuscript is publicly available, so we suggest readers refer to the original papers for more details. We also provide our processed data which can be publicly [downloaded](https://drive.google.com/file/d/1tQTeZn-tbKcHH5_NsArb5JAhCVcUmOy8/view?usp=sharing).
 
-__Data details__:
+__Data structure__:
 - 📁 `data/` 
   - 📁 `Chu_reps/`
   - 📁 `CMV_reps/`
