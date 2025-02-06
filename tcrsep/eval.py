@@ -46,7 +46,7 @@ if __name__ == '__main__':
     samples = df[['CDR3.beta','V','J']].values
     if 'full_seq' not in df.columns:            
         full_seqs = cdr2full(samples,multi_process=True)  #v-j-cdr3
-        if type(full_seqs[0]) != str:
+        if type(full_seqs[0]) != str and type(full_seqs[0]) not in [np.str,np.str_]:
             full_seqs = [c.decode('utf-8') for c in full_seqs]
         seqs = [[s[0] for s in samples],full_seqs]            
         #df['full_seq'] = full_seqs
