@@ -113,7 +113,7 @@ For other customized usages, we provide the following module descriptions. Users
 | utils.py                                  | N/A (contains utility functions)                  |
 
 ## Processed data
-All the data used in the manuscript is publicly available, so we suggest readers refer to the original papers for more details. We also provide our processed data which can be publicly [downloaded](https://drive.google.com/file/d/1tQTeZn-tbKcHH5_NsArb5JAhCVcUmOy8/view?usp=sharing).
+All the data used in the manuscript is publicly available, so we suggest readers refer to the original papers for more details. We also provide our processed data which can be publicly [downloaded](https://drive.google.com/file/d/1tQTeZn-tbKcHH5_NsArb5JAhCVcUmOy8/view?usp=sharing). We also add an callback-```EarlyStopping(monitor='val_loss',patience=5,verbose=1,restore_best_weights=True)``` to the ```infer_selection``` function of sonia.py to enable early stopping for fair comparison. Though it seems that settting ```monitor=True``` can also select the best model, early stopping can reduce training resources. For benchmarking, 80% of both pre- and post-sel sequences are selected for training in each validation-fold; 20% remaining pre- and post-sel sequences are for evaluating.
 
 __Data structure__:
 - 📁 `data/` 
