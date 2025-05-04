@@ -450,7 +450,7 @@ class EarlyStopping:
         self.delta = delta
         self.path = path
         self.trace_func = trace_func
-    def __call__(self, val_loss, model):
+    def __call__(self, val_loss, model, verbose=True):
 
         score = -val_loss
 
@@ -460,7 +460,8 @@ class EarlyStopping:
                 self.save_checkpoint(val_loss, model)
         elif score < self.best_score + self.delta:
             self.counter += 1
-            logger.info(f'EarlyStopping counter: {self.counter} out of {self.patience}')
+            if verbose:
+                logger.info(f'EarlyStopping counter: {self.counter} out of {self.patience}')
             if self.counter >= self.patience:
                 self.early_stop = True
         else:            
@@ -831,6 +832,3 @@ def gene_to_num_str(gene_name: str,
     gene_type = gene_type.lower()
     pre_hyphen, hyphen, post_hyphen = gene_name.partition(gene_type)[-1].partition('-')
     return gene_type + (pre_hyphen.lstrip('0') + hyphen + post_hyphen.lstrip('0')).replace('/', '')
-
-
-
