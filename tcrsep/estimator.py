@@ -23,7 +23,7 @@ def weights_init(m):
     if isinstance(m, nn.Linear):
         torch.nn.init.xavier_uniform(m.weight.data)
 
-def load_tcrsep(load_dir=None,device='cuda:0'):
+def load_tcrsep(load_dir=None,gen_model_path=None,device='cuda:0'):
     default_model = False
     package_path = inspect.getfile(tcrsep)
     if load_dir is None or load_dir == 'None':
@@ -40,6 +40,8 @@ def load_tcrsep(load_dir=None,device='cuda:0'):
             args['gen_model_path'] = default_path + 'generation_model/COVID/'
         elif args['gen_model_path'] == 'models/generation_model/CMV_whole/':
             args['gen_model_path'] = default_path + 'generation_model/CMV_whole/'
+    if gen_model_path is not None: #overwrite
+        args['gen_model_path'] = gen_model_path
 
     sel_model = TCRsep(alpha=args['alpha'],gen_model_path=args['gen_model_path'],device=device,optimizer=args['optimizer'],lr=args['lr'])
     load_path = os.path.join(load_dir,f'tcrsep.pth')
@@ -80,13 +82,13 @@ class TCRsep:
 
         self.Z = 1
     
-    def fit(self,iters,loader,save_checkpoint=None,valid_emb=None,patience=10):
+    def fit(self,iters,loader,save_checkpoint=None,valid_emb=None,patience=10,verbose=True):
         self.model.train() 
         if self.optimizer== 'adam' :
-            logger.info('Use Adam optimizer.')
+            #logger.info('Use Adam optimizer.')
             optimizer = torch.optim.Adam(self.model.parameters(),lr=self.lr)
         else :
-            logger.info('Use RMSProp')
+            #logger.info('Use RMSProp')
             optimizer = torch.optim.RMSprop(self.model.parameters(),lr=self.lr)
 
         scheduler = ReduceLROnPlateau(optimizer, 'min',patience=5, factor=0.2)       
@@ -142,7 +144,7 @@ class TCRsep:
                 loss_train_record.append(loss.item())
                 
                 if i // self.interval != e and indicator:
-                    logger.info(f"At epoch {e}")
+                    #logger.info(f"At epoch {e}")
                     e = i // self.interval 
                     self.model.eval()
                     if valid_emb is not None:
@@ -163,17 +165,21 @@ class TCRsep:
                         val_loss = 0.5 * self.alpha * ((ws_alpha)**2).mean() + (1-self.alpha) *0.5 * ((ws_pre_alpha)**2).mean() - (ws_alpha).mean()
                         val_loss2 = 0.5 * self.alpha * ((ws_pre_alpha_post)**2).mean() + (1-self.alpha) * 0.5 * ((ws_alpha_post)**2).mean() - ws_pre_alpha_post.mean()             
                         val_loss += val_loss2
-                        scheduler.step(val_loss) 
-                        logger.info(f'At epoch {e}. ' +'Training loss = '+str(np.mean(loss_train_record)) + ', ' +  'Validation loss = '+ str(val_loss.item()) + '.')
+                        scheduler.step(val_loss)
+                        if verbose: 
+                            logger.info(f'At epoch {e}. ' +'Training loss = '+str(np.mean(loss_train_record)) + ', ' +  'Validation loss = '+ str(val_loss.item()) + '.')
                     else :
-                        logger.info(f'At epoch {e}. ' +'Training loss = '+str(np.mean(loss_train_record)))
+                        if verbose:
+                            logger.info(f'At epoch {e}. ' +'Training loss = '+str(np.mean(loss_train_record)))
                     if monitor:
-                        early_stop(val_loss, self.model)
+                        early_stop(val_loss, self.model, verbose=verbose)
                         if early_stop.early_stop:
-                            logger.info("Early stopping")
+                            if verbose:
+                                logger.info("Early stopping")
                             if save_checkpoint is not None:
                                 self.model.load_state_dict(torch.load(save_checkpoint))
-                                logger.info('Saved and Loaded the best model')
+                                if verbose:
+                                    logger.info('Saved and Loaded the best model')
                             break                   
                     if e % 10 == 0 and e > 0 and not monitor and save_checkpoint is not None:
                         sp = save_checkpoint.replace('tcrsep.pth',f'tcrsep_{e}.pth')
@@ -181,10 +187,11 @@ class TCRsep:
                         
 
         if save_checkpoint is not None and valid_emb is None:
-            torch.save(self.model.state_dict(), save_checkpoint)                    
-            logger.info(f'At epoch {e} save the model to {save_checkpoint}.')
+            torch.save(self.model.state_dict(), save_checkpoint) 
+            if verbose:                   
+                logger.info(f'At epoch {e} save the model to {save_checkpoint}.')
 
-    def train(self,epochs,seqs_post,seqs_pre=None,batch_size=512,save_checkpoint=None,valid_ratio=0.1):
+    def train(self,epochs,seqs_post,seqs_pre=None,batch_size=512,save_checkpoint=None,valid_ratio=0.1,verbose=True):
         '''
         @iters: iteration for the training process.
         @seqs_post: post-sel TCRs or their embedding numpy array. Its format should be [[CDR3_1,V_1,J_1],[CDR3_2,V_2,J_2],...], or in the shape of N x embedding_size.
@@ -238,7 +245,7 @@ class TCRsep:
             pre_emb = pre_emb[index_pre[int(len(index_pre) * valid_ratio):]]                        
             emb_valid = [post_emb_val,pre_emb_val]
         loader_train = Loader(pre_emb,post_emb,batch_size)
-        self.fit(iters,loader_train,save_checkpoint=save_checkpoint,valid_emb = emb_valid,patience=10) #patience can be changed to samller values
+        self.fit(iters,loader_train,save_checkpoint=save_checkpoint,valid_emb = emb_valid,patience=10, verbose=verbose) 
         self.Z = np.mean(self.predict_weights(pre_emb_ori))
         # if emb_valid is not None:
         #     self.Z_val = np.mean(self.predict_weights(pre_emb_val))        
@@ -312,15 +319,16 @@ class TCRsep:
         pgen = self.default_gen_model.p_gen(samples)              
         return pgen
 
-    def sample(self,N,c=10,multiple=5):
+    def sample(self,N,c=10,multiple=10,verbose=True):
         '''
         @N: the number of TCRs sampled from P_post
         Return:
             Generated TCRs, selection factors of generated TCRs
         '''
         new_samples = []
-        weights_new = []    
-        logger.info('Begin sampling from P_post')
+        weights_new = []   
+        if verbose: 
+            logger.info('Begin sampling from P_post')
         while len(new_samples) < N:        
             num_left = N - len(new_samples)        
             num_gen = multiple * num_left
@@ -333,7 +341,8 @@ class TCRsep:
             weights_new.extend(accept_weights[:num_left])            
             ratio = len(new_samples) / N * 100
             ratio = round(ratio,3)
-            logger.info(f"Done {ratio}%")
+            if verbose:
+                logger.info(f"Done {ratio}%")
         
         return np.array(new_samples),np.array(weights_new)
 

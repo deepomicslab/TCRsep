@@ -22,7 +22,7 @@ setup(name='tcrsep',
             ],
       packages=find_packages(),
       python_requires = ">=3.6",
-      install_requires=['numpy','torch>=1.8.0','tqdm','pandas','scikit-learn','Scipy','tcr2vec','olga','biopython','sympy','matplotlib'],
+      install_requires=['numpy','torch>=1.5.0','tqdm','pandas','scikit-learn','Scipy','tcr2vec','olga','biopython','sympy','matplotlib'],
       data_files = data_files_to_include,
       include_package_data=True,
       zip_safe=False)
