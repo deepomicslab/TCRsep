@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 data_files_to_include = [('', ['README.md', 'LICENSE'])]
 setup(name='tcrsep',
-      version='1.2',
+      version='1.3.1',
       description='Selection model for immune receptor repertoires',
       long_description='None',
       url='https://github.com/jiangdada1221/TCRsep',
