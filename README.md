@@ -138,7 +138,7 @@ __Data structure__:
 Note that some files were saved in the compressed format, requiring the argument `compression='gzip'` to load.
 
 ## Results replication
-We have prepared a replication protocol of the benchmarking experiments in our manuscript. We are downloading it from our server and will upload it to public data holder shortly. If you have any question or problem for this replication protocal, please contact yuepjiang3-c@my.cityu.edu.hk. We will answer you inquries as soon as possible.     
+We have prepared a replication protocol of the benchmarking experiments in our manuscript. If can be can be publicly [downloaded](https://drive.google.com/file/d/1vtVhWv41tC0wNVlEgGdxlESXgl0aM_cy/view?usp=sharing). If you have any question or problem for this replication protocal, please contact yuepjiang3-c@my.cityu.edu.hk. We will answer you inquries as soon as possible.     
 
 ## Contact
 ```
