@@ -1,5 +1,5 @@
 ## TCRsep: T-cell receptor selection estimation procedure
-TCRsep is a python software for the inference of the selection factor for immune receptor repertoires. It takes a productive TCR repertoire and pre-selection repertoire (optional) as inputs for model training. After that, it outputs the selection factors for any given TCR clonetypes (defined in the __CDR3-V-J__ format). It also outputs their post-selection probabilities that can be further utilized to analyze the receptor sharing pattern and identify indicative disease-associated receptors. 
+TCRsep is a python software for the inference of the selection factor for immune receptor repertoires. It takes a productive TCR repertoire and pre-selection repertoire (optional) as inputs for model training. After that, it outputs the selection factors for any given TCR clonotypes (defined in the __CDR3-V-J__ format). It also outputs their post-selection probabilities that can be further utilized to analyze the receptor sharing pattern and identify indicative disease-associated receptors. 
  <br />
 
 <img src="https://github.com/jiangdada1221/TCRsep/blob/main/figs/workflow_github.png" width="800"> <br />
@@ -147,7 +147,7 @@ We have prepared a replication protocol of the benchmarking experiments in our m
 Author: Yuepeng Jiang
 Email: yuepjiang3-c@my.cityu.edu.hk/yuj009@eng.ucsd.edu/jiangdada12344321@gmail.com
 Note: For instant query, feel free to send me an email since I check my email often. 
-Otherwise, you may open an issue section in the [NEW TCRsep REPOSITORY](https://github.com/jiangdada1221/TCRsep).
+Otherwise, you may open an issue section in the NEW TCRsep REPOSITORY (https://github.com/jiangdada1221/TCRsep).
 ```
 
 ## License
