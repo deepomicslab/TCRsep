@@ -146,8 +146,8 @@ We have prepared a replication protocol of the benchmarking experiments in our m
 ```
 Author: Yuepeng Jiang
 Email: yuepjiang3-c@my.cityu.edu.hk/yuj009@eng.ucsd.edu/jiangdada12344321@gmail.com
-Note: For instant query, feel free to send me an email since I check email often. 
-Otherwise, you may open an issue section in this repository.
+Note: For instant query, feel free to send me an email since I check my email often. 
+Otherwise, you may open an issue section in the [NEW TCRsep REPOSITORY](https://github.com/jiangdada1221/TCRsep).
 ```
 
 ## License
