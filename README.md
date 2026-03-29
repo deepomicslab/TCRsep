@@ -5,6 +5,7 @@ TCRsep is a python software for the inference of the selection factor for immune
 <img src="https://github.com/jiangdada1221/TCRsep/blob/main/figs/workflow_github.png" width="800"> <br />
 
 ### NOTE: Please refer to the new [TCRsep](https://github.com/jiangdada1221/TCRsep) repository as this repository will not get maintained.
+#### Manuscript can be freely [downloaded](https://drive.google.com/file/d/1_gq_GOscQZK1PB4IS-KJ51Lr3sJtU-Ua/view?usp=sharing).
 
 ## Installation
 Install TCRsep via Github (recommended): <br />
